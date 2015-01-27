@@ -1,4 +1,6 @@
+*.swp
 example.htaccess
 build.xml
 composer.json
 CONTRIBUTING.md
+media
