@@ -238,4 +238,16 @@ class Kohana_File {
 		return $pieces;
 	}
 
+	/**
+	 * Get file extension from it name
+	 *
+	 * @since   Gleez 1.1.0
+	 * @param   string  $file  Filename
+	 * @return  string
+	 */
+	public static function getExt($file)
+	{
+		return pathinfo($file, PATHINFO_EXTENSION);
+	}
+
 }

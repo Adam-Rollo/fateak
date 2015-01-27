@@ -358,6 +358,34 @@ abstract class Kohana_Image {
 		return $this;
 	}
 
+        /**
+         * resize and crop from Fateak
+         */
+        public function fillfit($width = NULL, $height = NULL)
+        {
+            $ratio_width = $width / $this->width;
+            $ratio_height = $height / $this->height;
+
+            if ($ratio_width > $ratio_height) {
+                $ratio = $ratio_width;
+                $offset_x = 1;
+                $offset_y = ($this->height * $ratio - $height) / 2;
+            } else {
+                $ratio = $ratio_height;
+                $offset_x = ($this->width * $ratio - $width) / 2;
+                $offset_y = 1;
+            }
+
+            $resize_width = $this->width * $ratio;
+            $resize_height = $this->height * $ratio;
+
+            $this->resize($resize_width, $resize_height);
+
+            $this->crop($width, $height, $offset_x, $offset_y);
+
+            return $this;
+        }
+
 	/**
 	 * Rotate the image by a given amount.
 	 *
