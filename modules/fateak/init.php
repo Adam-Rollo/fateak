@@ -1,5 +1,10 @@
 <?php
 /**
+ * Const variables
+ */
+define('DS', DIRECTORY_SEPARATOR);
+
+/**
  * Setting the Routes
  *
  * @author     Rollo - Fateak
