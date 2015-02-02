@@ -14,4 +14,16 @@ return array
         ),
     ),
 
+    'redis_default' => array
+    (
+        'host' => '127.0.0.1',
+        'port' => '6379',
+    ),
+
+    'redis_broaqi' => array
+    (
+        'host' => '192.168.1.86',
+        'port' => '6379',
+    ),
+
 );
