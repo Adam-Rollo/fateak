@@ -26,18 +26,6 @@ class Fateak_Session_Redis extends Session
     protected $_session_id;
 
     /**
-     * The old session id
-     * @var string
-     */
-    protected $_update_id;
-
-    /**
-     * The client user id
-     * @var integer
-     */
-    protected $_user_id;
-
-    /**
      * Class constructor
      *
      * @param  array   $config  Configuration [Optional]
@@ -45,8 +33,9 @@ class Fateak_Session_Redis extends Session
      */
     public function __construct(array $config = array(), $id = NULL)
     {
+        $session_server = Kohana::$config->load('session')->get('redis', array('server' => 'default'));
 
-        $redis_server = isset($config['redis_server']) ? $config['redis_server'] : 'default';
+        $redis_server = isset($config['redis_server']) ? $config['redis_server'] : $session_server;
 
         $this->_redis = FRedis::instance($redis_server);
 
@@ -59,7 +48,7 @@ class Fateak_Session_Redis extends Session
 
     public function id()
     {
-
+        return $this->_session_id;
     }
 
     /**
@@ -70,7 +59,38 @@ class Fateak_Session_Redis extends Session
      */
     protected function _read($id = NULL)
     {
+        if ($id OR $id = Cookie::get($this->_name))
+        {
+            $session_key = $this->_table_name . ':' . $id;
+            
+            $usual_ip = $this->_redis->hGet($session_key, 'ip');
 
+            if ( $usual_ip !== FALSE )
+            {
+                if ( $usual_ip == Request::$client_ip )
+                {
+                    if ($this->_expire())
+                    {
+                        throw new Exception_Session(__('Your session has benn expired. Please login again.'));
+                    }
+
+                    $this->_session_id = $id;
+                    
+                    return $this->_redis->hGet($session_key, 'content');
+                }
+                else 
+                {
+                    $this->destroy();
+
+                    throw new Exception_Session(__('You are logging in an unusual place. Please login again for safe.'));
+                }
+            }
+        }
+
+        // Create a new session id
+        $this->_regenerate();
+
+        return NULL;
     }
 
     /**
@@ -80,7 +100,17 @@ class Fateak_Session_Redis extends Session
      */
     protected function _regenerate()
     {
+        do
+        {
+            // Create a new session id
+            $id = str_replace('.', '-', uniqid(NULL, TRUE));
+            $session_id = $this->_table_name . ":" . $id;
 
+            $usual_ip = $this->_redis->hGet($session_id, 'ip');
+
+        } while ($usual_ip !== FALSE);
+
+        $this->_session_id = $id;
     }
 
     /**
@@ -90,7 +120,15 @@ class Fateak_Session_Redis extends Session
      */
     protected function _write()
     {
+        $session_key = $this->_table_name . ":" . $this->_session_id;
 
+        $this->_redis->hSet($session_key, 'ip', Request::$client_ip);        
+        $this->_redis->hSet($session_key, 'content', $this->__toString());        
+        $this->_redis->hSet($session_key, 'last_active', $this->_data['last_active']);        
+
+        Cookie::set($this->_name, $this->_session_id, $this->_lifetime);
+
+        return TRUE;
     }
 
     /**
@@ -100,7 +138,13 @@ class Fateak_Session_Redis extends Session
      */
     protected function _destroy()
     {
+        $session_key = $this->_table_name . ":" . $this->_session_id;
 
+        $this->_redis->hDel($session_key, 'ip');
+        $this->_redis->hDel($session_key, 'content');
+        $this->_redis->hDel($session_key, 'last_active');
+
+        Cookie::delete($this->_name);
     }
 
     /**
@@ -110,6 +154,34 @@ class Fateak_Session_Redis extends Session
      */
     protected function _restart()
     {
+        $this->_regenerate();
 
+        return TRUE;
+    }
+
+    /**
+     * Overtime process
+     */
+    protected function _expire()
+    {
+        $session_key = $this->_table_name . ":" . $this->_session_id;
+
+        if ($this->_lifetime)
+        {
+            // Expire sessions when their lifetime is up
+            $expires = $this->_lifetime;
+        }
+        else
+        {
+            // Expire sessions after one month
+            $expires = Date::MONTH;
+        }
+
+        if ( (time() - $this->_redis->hGet($session_key, 'last_active')) > $expires )
+        {
+            return $this->restart();
+        }
+
+        return FALSE;
     }
 }

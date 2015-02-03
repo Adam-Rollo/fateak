@@ -153,6 +153,11 @@ class Kohana_Cookie {
 	public static function salt($name, $value)
 	{
 		// Require a valid salt
+                if ( is_null(Cookie::$salt) ) 
+                {
+                    Cookie::$salt = Kohana::$config->load('cookie')->get('salt', 'fateakisfateweakfake');
+                }
+
 		if ( ! Cookie::$salt)
 		{
 			throw new Kohana_Exception('A valid cookie salt is required. Please set Cookie::$salt in your bootstrap.php. For more information check the documentation');
