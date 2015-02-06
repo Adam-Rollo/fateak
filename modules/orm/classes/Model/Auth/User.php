@@ -30,18 +30,13 @@ class Model_Auth_User extends ORM {
 	public function rules()
 	{
 		return array(
-			'username' => array(
-				array('not_empty'),
-				array('max_length', array(':value', 32)),
-				array(array($this, 'unique'), array('username', ':value')),
-			),
-			'password' => array(
-				array('not_empty'),
-			),
 			'email' => array(
 				array('not_empty'),
 				array('email'),
 				array(array($this, 'unique'), array('email', ':value')),
+			),
+			'password' => array(
+				array('not_empty'),
 			),
 		);
 	}
@@ -69,7 +64,6 @@ class Model_Auth_User extends ORM {
 	public function labels()
 	{
 		return array(
-			'username'         => 'username',
 			'email'            => 'email address',
 			'password'         => 'password',
 		);

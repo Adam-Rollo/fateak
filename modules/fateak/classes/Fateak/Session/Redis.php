@@ -31,11 +31,11 @@ class Fateak_Session_Redis extends Session
      * @param  array   $config  Configuration [Optional]
      * @param  string  $id      Session id [Optional]
      */
-    public function __construct(array $config = array(), $id = NULL)
+    public function __construct(array $config = NULL, $id = NULL)
     {
         $session_server = Kohana::$config->load('session')->get('redis', array('server' => 'default'));
 
-        $redis_server = isset($config['redis_server']) ? $config['redis_server'] : $session_server;
+        $redis_server = isset($config['redis_server']) ? $config['redis_server'] : $session_server['server'];
 
         $this->_redis = FRedis::instance($redis_server);
 
@@ -44,6 +44,8 @@ class Fateak_Session_Redis extends Session
             $this->_table_name = $config['table_name'];
 
         }
+
+        parent::__construct($config, $id);
     }
 
     public function id()
@@ -69,13 +71,13 @@ class Fateak_Session_Redis extends Session
             {
                 if ( $usual_ip == Request::$client_ip )
                 {
+                    $this->_session_id = $id;
+
                     if ($this->_expire())
                     {
                         throw new Exception_Session(__('Your session has benn expired. Please login again.'));
                     }
 
-                    $this->_session_id = $id;
-                    
                     return $this->_redis->hGet($session_key, 'content');
                 }
                 else 

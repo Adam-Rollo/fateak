@@ -2,9 +2,9 @@
 
 return array(
 
-	'driver'       => 'File',
+	'driver'       => 'ORM',
 	'hash_method'  => 'sha256',
-	'hash_key'     => NULL,
+	'hash_key'     => 'partitioniscrazy',
 	'lifetime'     => 1209600,
 	'session_type' => 'redis',
 	'session_key'  => 'auth_user',
