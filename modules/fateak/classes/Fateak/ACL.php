@@ -8,7 +8,9 @@ class Fateak_ACL
     /** Rule type: allow */
     const ALLOW = TRUE;
 
-    public static $_all_permissions = array();
+    public static $_all_perms = array();
+
+    public static $_perm = array();
 
     /**
      * Returns a specific permission
@@ -253,5 +255,46 @@ class Fateak_ACL
         }
 
         return isset(self::$_perm[$user->id][$perm_name]);
+    }
+
+    /**
+     * set permission
+     */
+    protected static function _set_permissions($user)
+    {
+        $roles = self::get_user_roles($user);
+
+        $permissions = array();
+
+        foreach ($roles as $role)
+        {
+            $result = DB::select('permission')
+                ->from('permissions')
+                ->where('rid', '=', $role->id)
+                ->execute();
+
+            foreach ($result as $p)
+            {
+                $permission_name = $p['permission'];
+                if (! isset($permissions[$permission_name]))
+                    $permissions[$permission_name] = self::ALLOW;
+            }
+        }
+
+        self::$_perm[$user->id] = $permissions;
+    }
+
+    /**
+     * Get all roles for user
+     *
+     * @since   2.0
+     * @param   Model_User  $user  User object
+     * @return  array  All roles for user
+     */
+    private static function get_user_roles(Model_User $user)
+    {
+        $roles = $user->roles->find_all()->as_array();
+
+        return $roles;
     }
 }

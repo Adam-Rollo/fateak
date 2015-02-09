@@ -9,6 +9,8 @@
  */
 class Fateak_User
 {
+    const ADMIN_ID = 0;
+
     /**
      * Cache the user info
      * @var User
@@ -50,7 +52,7 @@ class Fateak_User
             }
         }
 
-        return self::$_user;
+        return is_null($extra_info) ? self::$_user->get() : self::$user;
     }
 
 
@@ -60,7 +62,7 @@ class Fateak_User
      */
     public function __construct( $info )
     {
-        $this->_base_info = $info;
+        $this->_base_info = $info['base'];
     }
 
     /**
@@ -73,5 +75,20 @@ class Fateak_User
         $object = ORM::factory($model);
 
         $this->_extra_info[$name] = $object->get_user_info();
+    }
+
+    /**
+     * Get any information from User object
+     */
+    public function get($group = 'base')
+    {
+        if ($group == 'base')
+        {
+            return $this->_base_info;
+        }
+        else 
+        {
+            return $this->_extra_info[$group];
+        }
     }
 }

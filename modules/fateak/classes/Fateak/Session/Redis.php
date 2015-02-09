@@ -14,10 +14,9 @@ class Fateak_Session_Redis extends Session
     protected $_table_name = 'session';
 
     /**
-     * Garbage collection requests
-     * @var integer
+     * Life time
      */
-    protected $_gc = 500;
+    protected $_lifetime;
 
     /**
      * The current session id
@@ -33,9 +32,10 @@ class Fateak_Session_Redis extends Session
      */
     public function __construct(array $config = NULL, $id = NULL)
     {
-        $session_server = Kohana::$config->load('session')->get('redis', array('server' => 'default'));
+        $session_config = Kohana::$config->load('session')->get('redis');
 
-        $redis_server = isset($config['redis_server']) ? $config['redis_server'] : $session_server['server'];
+        $redis_server = isset($config['redis_server']) ? $config['redis_server'] : $session_config['server'];
+        $this->_lifetime = isset($config['lifetime']) ? $config['lifetime'] : $session_config['lifetime'];
 
         $this->_redis = FRedis::instance($redis_server);
 
