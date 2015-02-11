@@ -56,11 +56,11 @@ class Fateak_Assets
      */
     public static function body_js()
     {
-        uasort(self::$_head_js, array('self', 'sort_by_weight'));
+        uasort(self::$_body_js, array('self', 'sort_by_weight'));
 
         $js_html = "";
 
-        foreach (self::$_head_js as $js) {
+        foreach (self::$_body_js as $js) {
             $js_html .= PHP_EOL.HTML::script($js['url']);
         }
 

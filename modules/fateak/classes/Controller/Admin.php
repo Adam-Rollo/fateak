@@ -19,6 +19,18 @@ abstract class Controller_Admin extends Controller_Template
      */
     public function before()
     {
+        $action = $this->request->action();
+        if ($action === 'login')
+        {
+            $this->template = 'layout/login';
+        }
+        else
+        {
+            // Set js in head
+            Assets::add_head_js('jquery', 'assets/js/jquery-1.11.2.min.js', -10);
+            Assets::add_head_js('bootstrap', 'assets/js/bootstrap.min.js', -5);
+        }
+
         parent::before();
 
         // Load configuration
@@ -27,15 +39,36 @@ abstract class Controller_Admin extends Controller_Template
         // Set title
         $this->template->title = $admin_config->get('title');
 
-        // Set js in head
-        Assets::add_head_js('jquery', 'assets/js/jquery-1.11.2.min.js', -10);
-        Assets::add_head_js('bootstrap', 'assets/js/bootstrap.min.js', -5);
+        // ACL
+        if ($action !== 'login')
+        {
+            $user = User::active_user();
+            if (is_null($user))
+            {
+                Message::set(Message::WARN, '123');
+                $controller = $this->request->controller();
+                HTTP::redirect(strtolower($controller).'/login');
+            }
+            else 
+            {
+                if (! User::is_rolo('login'))
+                {
+                    Message::set('123');
+                    HTTP::redirect();
+                }
+            }
+        }
 
     }
 
-    public function action_index()
+    abstract public function action_index();
+
+    abstract public function action_login();
+
+    protected function _load_iframe_tools()
     {
         Assets::add_body_js('fmenu', 'assets/js/menu.js', 5); 
+
     }
 
 

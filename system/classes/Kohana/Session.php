@@ -36,16 +36,19 @@ abstract class Kohana_Session {
 	 */
 	public static function instance($type = NULL, $id = NULL)
 	{
+                // Load the configuration
+                $config = Kohana::$config->load('session');
+
 		if ($type === NULL)
 		{
 			// Use the default type
-			$type = Session::$default;
+			$type = $config->get('default_type', Session::$default);
 		}
 
 		if ( ! isset(Session::$instances[$type]))
 		{
-			// Load the configuration for this type
-			$config = Kohana::$config->load('session')->get($type);
+                        // Load the configuration for this type
+                        $config = $config->get($type);
 
 			// Set the session class name
 			$class = 'Session_'.ucfirst($type);

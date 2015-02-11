@@ -1,6 +1,8 @@
 *.swp
+*~
 example.htaccess
 build.xml
 composer.json
 CONTRIBUTING.md
-media
+/media/
+/modules/savant/

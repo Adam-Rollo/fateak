@@ -2,6 +2,8 @@
 
 return array(
 
+        'default_type' => 'redis',
+
 	'cookie' => array(
 		'encrypted' => FALSE,
 	),
