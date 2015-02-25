@@ -40,23 +40,30 @@ abstract class Controller_Admin extends Controller_Template
         $this->template->title = $admin_config->get('title');
 
         // ACL
+        $user = User::active_user(array());
+        $controller = $this->request->controller();
         if ($action !== 'login')
         {
-            $user = User::active_user();
             if (is_null($user))
             {
-                Message::set(Message::WARN, '123');
-                $controller = $this->request->controller();
+                Message::set(Message::WARN, __('You must login first.'));
                 HTTP::redirect(strtolower($controller).'/login');
             }
             else 
             {
-                if (! User::is_rolo('login'))
+                if (! $user->is_role('login'))
                 {
-                    Message::set('123');
-                    HTTP::redirect();
+                    Message::alert(__('You haven\'t permission to login.'));
+                    HTTP::redirect(strtolower($controller).'/login');
                 }
             }
+        }
+        else
+        {
+            if (! is_null($user))
+            {
+                HTTP::redirect(strtolower($controller));
+            }    
         }
 
     }
@@ -71,5 +78,15 @@ abstract class Controller_Admin extends Controller_Template
 
     }
 
+    public function action_logout()
+    {
+        $controller = $this->request->controller();
+
+	// Sign out the user
+	Auth::instance()->logout();
+
+	// Redirect to the user account and then the signin page if logout worked as expected
+        HTTP::redirect(strtolower($controller).'/login');
+    }
 
 }

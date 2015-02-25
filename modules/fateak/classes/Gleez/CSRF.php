@@ -73,6 +73,7 @@ class Gleez_CSRF {
 
 	/**
 	 * Ensure the private key variable used to generate tokens is set.
+         * Fateak modified
 	 *
 	 * @return  string  The private key.
 	 *
@@ -80,12 +81,12 @@ class Gleez_CSRF {
 	 */
 	private static function _private_key()
 	{
-		$config = Config::load('site');
+		$config = Kohana::$config->load('site');
 
-		if ( !($key = $config->get('gleez_private_key')) )
+		if ( !($key = $config->get('csrf_key')) )
 		{
 			$key = sha1(uniqid(mt_rand(), TRUE)) . md5(uniqid(mt_rand(), TRUE));
-			$config->set('gleez_private_key', $key);
+			$config->set('csrf_key', $key);
 		}
 
 		return $key;

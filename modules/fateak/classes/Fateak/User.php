@@ -29,10 +29,20 @@ class Fateak_User
     protected $_extra_info;
 
     /**
-     * Return the active user.  If there's no active user, return the guest user.
+     * Roles
+     */
+    protected $_roles;
+
+    /**
+     * Permissions
+     */
+    protected $_permissions;
+
+    /**
+     * Return the active user.  If there's no active user, return null.
      *
      * @param  Array
-     * @return Model_User
+     * @return User
      */
     public static function active_user( $extra_info = NULL )
     {
@@ -41,8 +51,24 @@ class Fateak_User
 
             $base_info =  Auth::instance()->get_user();
 
+            if (is_null($base_info))
+            {
+                return null;
+            }
+
             self::$_user = new User(array('base' => $base_info));
         }
+
+        $roles = ACL::get_user_roles($base_info);
+
+        foreach ($roles as $role)
+        {
+            self::$_user->_roles[] = $role->name;
+
+        }
+
+        self::$_user->_permissions = ACL::get_user_permissions($base_info);
+
 
         if (! is_null($extra_info) && is_array($extra_info))
         {
@@ -52,7 +78,7 @@ class Fateak_User
             }
         }
 
-        return is_null($extra_info) ? self::$_user->get() : self::$user;
+        return is_null($extra_info) ? self::$_user->get() : self::$_user;
     }
 
 
@@ -91,4 +117,16 @@ class Fateak_User
             return $this->_extra_info[$group];
         }
     }
+
+    /**
+     * roles
+     *
+     * @param String
+     * @return boolean
+     */
+    public function is_role($role)
+    {
+        return in_array($role, $this->_roles);
+    }
+
 }

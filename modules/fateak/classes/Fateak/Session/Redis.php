@@ -75,6 +75,7 @@ class Fateak_Session_Redis extends Session
 
                     if ($this->_expire())
                     {
+                        Message::alert(__('Your session has benn expired. Please login again.'));
                         throw new Exception_Session(__('Your session has benn expired. Please login again.'));
                     }
 

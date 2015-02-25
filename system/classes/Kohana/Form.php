@@ -63,7 +63,16 @@ class Kohana_Form {
 			$attributes['method'] = 'post';
 		}
 
-		return '<form'.HTML::attributes($attributes).'>';
+		$out =  '<form'.HTML::attributes($attributes).'>' . PHP_EOL;
+
+		if (class_exists('CSRF'))
+		{
+			$action  = md5($action . CSRF::key());
+			$out 	.= self::hidden('_token', CSRF::token(FALSE, $action)).PHP_EOL;
+			$out 	.= self::hidden('_action', $action).PHP_EOL;
+		}
+
+                return $out;
 	}
 
 	/**

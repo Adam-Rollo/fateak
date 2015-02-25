@@ -1336,4 +1336,34 @@ class Kohana_Request implements HTTP_Request {
 		return $this;
 	}
 
+	/**
+	 * Check to see if the current request is a GET request
+	 *
+	 * Example:
+	 * ~~~
+	 * $this->request->is_get();
+	 * ~~~
+	 *
+	 * @return  boolean  Whether the request is a GET request or not
+	 */
+	public function is_get()
+	{
+		return (self::GET === $this->_method);
+	}
+
+	/**
+	 * Check to see if the current request is a POST request
+	 *
+	 * Example:
+	 * ~~~
+	 * $this->request->is_post();
+	 * ~~~
+	 *
+	 * @return  boolean  Whether the request is a POST request or not
+	 */
+	public function is_post()
+	{
+		return (self::POST === $this->_method);
+	}
+
 }

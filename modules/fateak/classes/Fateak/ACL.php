@@ -291,10 +291,23 @@ class Fateak_ACL
      * @param   Model_User  $user  User object
      * @return  array  All roles for user
      */
-    private static function get_user_roles(Model_User $user)
+    public static function get_user_roles(Model_User $user)
     {
         $roles = $user->roles->find_all()->as_array();
 
         return $roles;
+    }
+
+    /**
+     * Get all user's permission
+     */
+    public static function get_user_permissions(Model_User $user)
+    {
+        if ( ! isset(self::$_perm[$user->id]))
+        {
+            self::_set_permissions($user);
+        }
+
+        return self::$_perm[$user->id];
     }
 }
