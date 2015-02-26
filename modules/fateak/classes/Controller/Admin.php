@@ -12,20 +12,23 @@ abstract class Controller_Admin extends Controller_Template
     /**
      * @var  View  page template
      */
-    public $template = 'layout/admin';
+    public $template = null;
 
     /**
      * Before function
      */
     public function before()
     {
+        $controller = strtolower($this->request->controller());
         $action = $this->request->action();
+
         if ($action === 'login')
         {
             $this->template = 'layout/login';
         }
         else
         {
+            $this->template = 'layout/admin';
             // Set js in head
             Assets::add_head_js('jquery', 'assets/js/jquery-1.11.2.min.js', -10);
             Assets::add_head_js('bootstrap', 'assets/js/bootstrap.min.js', -5);
@@ -41,20 +44,19 @@ abstract class Controller_Admin extends Controller_Template
 
         // ACL
         $user = User::active_user(array());
-        $controller = $this->request->controller();
         if ($action !== 'login')
         {
             if (is_null($user))
             {
                 Message::set(Message::WARN, __('You must login first.'));
-                HTTP::redirect(strtolower($controller).'/login');
+                HTTP::redirect($controller . '/login');
             }
             else 
             {
                 if (! $user->is_role('login'))
                 {
                     Message::alert(__('You haven\'t permission to login.'));
-                    HTTP::redirect(strtolower($controller).'/login');
+                    HTTP::redirect($controller . '/login');
                 }
             }
         }
@@ -62,10 +64,12 @@ abstract class Controller_Admin extends Controller_Template
         {
             if (! is_null($user))
             {
-                HTTP::redirect(strtolower($controller));
+                HTTP::redirect( $controller );
             }    
         }
 
+        // View variable
+        $this->template->controller = $controller;
     }
 
     abstract public function action_index();

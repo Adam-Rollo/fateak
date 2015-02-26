@@ -5,6 +5,6 @@
     <?php echo Assets::head_js() ?>
 </head>
 <body>
-    <?php include Kohana::find_file('views', 'admin.tpl'); ?>
+    <?php include Kohana::find_file('views', $controller . '/admin.tpl'); ?>
 </body>
 </html>

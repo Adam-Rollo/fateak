@@ -210,4 +210,72 @@ class Kohana_URL {
 		return trim($title, $separator);
 	}
 
+	/**
+	 * Determine current url
+         * Gleez
+	 *
+	 * @param   mixed    $protocol
+	 * @param   boolean  $index
+	 * @param   boolean  $with_query_params
+	 *
+	 * @return  string
+	 */
+	public static function current($protocol = NULL, $index = FALSE, $with_query_params = TRUE)
+	{
+		static $uri;
+		$query = null;
+		if (!$with_query_params)
+		{
+			$query = self::query();
+		}
+
+		if (empty($uri))
+		{
+			$uri = self::site(Request::current()->uri());
+		}
+
+		return self::base($protocol, $index) . str_replace($query, '', ltrim($uri, '/'));
+	}
+
+	/**
+	 * Determine if current url is active
+	 * Gleez & Fateak
+         *
+	 * @param   string  $url
+	 * @return  boolean
+	 */
+	public static function is_active($url)
+	{
+		if (preg_match('#^[A-Z][A-Z0-9+.\-]+://#i', $url))
+		{
+			// Don't check URIs with a scheme ... not really a URI is it?
+			return FALSE;
+		}
+
+                if (self::base() == "/")
+                {
+		        $current = explode('/', trim(self::current(), '/'));
+		        $url = explode('/', trim($url, '/'));
+                }
+                else
+                {
+		        $current = explode('/', trim(str_replace(self::base(), '', self::current()), '/'));
+		        $url = explode('/', trim(str_replace(self::base(), '', $url), '/'));
+                }
+		
+                ksort($current);
+		ksort($url);
+
+		$result = TRUE;
+
+		if (count($url) < count($current))
+		{
+			for ($i = 0; $i < count($url); $i++)
+			{
+				$result = ( ( $url[$i] == $current[$i] ) AND $result );
+			}
+		}
+
+		return $result;
+	}
 }
