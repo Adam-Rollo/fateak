@@ -194,7 +194,7 @@ class Gleez_Menu {
 			}
 
 			// Check if the menu item URI is or contains the current URI
-			if (URL::is_active($item['url']) && ! isset($options['ajax']))
+			if (URL::is_active($item['url']) && ! in_array('ajax', $options))
 			{
 				$classes[] = 'active';
 				$attributes[] = 'active';
