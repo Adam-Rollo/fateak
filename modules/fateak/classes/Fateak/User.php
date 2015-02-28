@@ -58,6 +58,10 @@ class Fateak_User
 
             self::$_user = new User(array('base' => $base_info));
         }
+        else
+        {
+            $base_info = self::$_user->get();
+        }
 
         $roles = ACL::get_user_roles($base_info);
 

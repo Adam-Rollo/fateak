@@ -342,6 +342,13 @@ class Gleez_Menu {
 
 		foreach( $items as &$item)
 		{
+                        // Fateak ACL Menu
+                        $menu_key = 'menu-' . $item['name'];
+                        if (! ACL::check($menu_key))
+                        {
+                                continue; 
+                        }
+
 			// check if we should remove a node from the stack
 			while(count($stack) > 0 AND $stack[count($stack) - 1]['rgt'] < $item['rgt'])
 			{
@@ -542,5 +549,29 @@ class Gleez_Menu {
 
 		return $array;
 	}
+
+        /**
+         * Get root menu with ACL
+         * Fateak - Rollo
+         */
+        public static function root_menus()
+        {
+                $roots = ORM::factory('menu')
+                        ->where('pid', '=', 0)
+                        ->find_all();
+
+                $result = array();
+
+                foreach ($roots as $root)
+                {
+                        $permmision = 'menu-' . $root->name;
+                        if (ACL::check($permmision))
+                        {
+                                $result[] = $root; 
+                        }
+                }
+
+                return $result;
+        }
 
 }

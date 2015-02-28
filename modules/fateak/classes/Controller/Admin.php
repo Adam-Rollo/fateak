@@ -29,9 +29,13 @@ abstract class Controller_Admin extends Controller_Template
         else
         {
             $this->template = 'layout/admin';
+            // Set css in head
+            Assets::add_css('bootstrap', 'assets/css/bootstrap.css', -10);
             // Set js in head
             Assets::add_head_js('jquery', 'assets/js/jquery-1.11.2.min.js', -10);
             Assets::add_head_js('bootstrap', 'assets/js/bootstrap.min.js', -5);
+            // set js in body
+            Assets::add_body_js('fateak', 'assets/js/fateak.js', 0);
         }
 
         parent::before();
