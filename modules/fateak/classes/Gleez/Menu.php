@@ -179,7 +179,8 @@ class Gleez_Menu {
 		foreach ($items as $key => $item)
 		{
 			$has_children = count($item['children']);
-			$classes = NULL;
+                        // Fateak plus
+			$classes = array('fateak-common-menu');
 			$attributes  = array();
 			$caret = NULL;
 
@@ -188,7 +189,9 @@ class Gleez_Menu {
 			if ($_i == $num_items) $classes[] = 'last';
 			if ( $has_children )
 			{
-				$classes[] = 'parent dropdown';
+                                // Fateak minus
+				// $classes[] = 'parent dropdown';
+				$classes[] = 'fateak-parent-menu';
 				$attributes[] = 'dropdown-toggle collapsed';
 				if($i == 2) $classes[] = 'dropdown-submenu';
 			}
@@ -215,10 +218,14 @@ class Gleez_Menu {
 			//Twitter bootstrap attributes
 			if ($has_children)
 			{
-				$attributes['data-toggle'] = 'dropdown';
+                                // fateak minus
+				// $attributes['data-toggle'] = 'dropdown';
+				$attributes['data-toggle'] = '';
 				$item['url'] = '#';
 				$caret = ($i == 2) ? '': '<b class="caret"></b>';
-				$class = 'dropdown-menu';
+                                // fateak minus
+				// $class = 'dropdown-menu';
+				$class = '';
 			}
 
 			//Twitter bootstrap use collapse for widget menu chlidren
@@ -241,14 +248,16 @@ class Gleez_Menu {
 			}
 
 			$menu .= '<li'.$classes.'  ' .$id. '>'.HTML::anchor($item['url'], $title, $attributes);
+			$menu .= '</li> ';
 
 			if ( $has_children )
 			{
-				$menu .= $this->render(array('class' => $class, 'id' => 'collapse-'.$key),  $item['children']);
+				$menu .= "<li id='children-menu-" . $key . "' class='fateak-children-menu'>" 
+                                    . $this->render(array('class' => $class, 'id' => 'collapse-'.$key),  $item['children']) 
+                                    . "</li>";
 			}
 
 			$_i++;
-			$menu .= '</li> ';
 		}
 
 		$menu .= '</ul>';
@@ -556,7 +565,7 @@ class Gleez_Menu {
          */
         public static function root_menus()
         {
-                $roots = ORM::factory('menu')
+                $roots = ORM::factory('Menu')
                         ->where('pid', '=', 0)
                         ->find_all();
 
