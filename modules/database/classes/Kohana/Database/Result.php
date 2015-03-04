@@ -105,7 +105,7 @@ abstract class Kohana_Database_Result implements Countable, Iterator, SeekableIt
 
 			foreach ($this as $row)
 			{
-				$results[] = $row;
+				$results[] = $this->as_array_recursive($row);
 			}
 		}
 		elseif ($key === NULL)
@@ -334,5 +334,29 @@ abstract class Kohana_Database_Result implements Countable, Iterator, SeekableIt
 	{
 		return $this->offsetExists($this->_current_row);
 	}
+
+        /**
+         * Fateak - Rollo
+         * @uses as_array()
+         */
+        protected function as_array_recursive($stuff)
+        {
+            if (is_object($stuff) && method_exists($stuff, 'as_array'))
+            {
+                return $stuff->as_array(); 
+            }
+            else if (is_array($stuff))
+            {
+                $result = array();
+                foreach ($stuff as $element)
+                {
+                    $result[] = $this->as_array_recursive($element); 
+                }
+
+                return $result;
+            }
+
+            return $stuff;
+        }
 
 } // End Database_Result
