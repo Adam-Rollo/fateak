@@ -38,3 +38,22 @@ function px2int(str)
     var offset = str.indexOf('px');
     return parseInt(str.substr(0, offset));
 }
+
+/* ========================================================================
+    JS object merge
+   ===================================================================== */
+
+function mergeObjects(obj1, obj2)
+{
+    var newOb = {};
+    for (var i in obj2) {
+        newOb[i] = obj2[i];
+    }
+    for (var i in obj1) {
+        if (! newOb.hasOwnProperty(i)) {
+            newOb[i] = obj1[i];
+        }
+    }
+    return newOb;
+}
+

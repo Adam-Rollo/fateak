@@ -343,7 +343,7 @@ abstract class Kohana_Database_Result implements Countable, Iterator, SeekableIt
         {
             if (is_object($stuff) && method_exists($stuff, 'as_array'))
             {
-                return $stuff->as_array(); 
+                return new ArrayObject($stuff->as_array(), ArrayObject::ARRAY_AS_PROPS); 
             }
             else if (is_array($stuff))
             {

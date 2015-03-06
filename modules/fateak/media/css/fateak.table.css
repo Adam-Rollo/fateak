@@ -3,3 +3,13 @@
 .search-content {float: right}
 
 .search-btn {float: right}
+
+.search-type {float: right}
+
+.fateak-pagination {margin: 10px auto}
+.fateak-pagination li {list-style:none; float: left; margin-left:-1px ;width: 30px;height:30px; border:1px solid #CCC;text-align:center; line-height:25px}
+.fateak-pagination li:hover {background-color: #CEF; cursor:pointer}
+.fateak-pagination a:hover {text-decoration:none}
+
+.f-sort-icon {color: #AAA; cursor: pointer; margin-left: 10px}
+.f-sort-icon:hover {color: #5AD}
