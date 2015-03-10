@@ -44,7 +44,7 @@ abstract class Controller_Admin extends Controller_Template
         $admin_config = Kohana::$config->load('admin');
 
         // Set title
-        $this->template->title = $admin_config->get('title');
+        $this->template->title = __($admin_config->get('title'));
 
         // ACL
         $user = User::active_user(array());

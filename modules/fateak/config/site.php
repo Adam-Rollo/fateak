@@ -4,4 +4,24 @@ return array(
 
     'csrf_key' => 'norseforce212',
 
+    /**
+     * List of all supported languages. Array keys match language segment from the URI.
+     * A default fallback language can be set by I18n::$default.
+     *
+     * Options for each language:
+     *  i18n_code - The target language for the I18n class
+     *  locale    - Locale name(s) for setting all locale information (http://php.net/setlocale)
+     */
+    'installed_locales' => array(
+    	'en' => array(
+    	    'name'      => 'English',
+    	    'i18n_code' => 'en',
+            'locale'    => array('en_US.utf-8'),
+	),
+	'zh' => array(
+	    'name'      => 'Chinese (Simplified)',
+	    'i18n_code' => 'zh',
+	    'locale'    => array('zh_CN.utf-8'),
+	),
+    ),
 );

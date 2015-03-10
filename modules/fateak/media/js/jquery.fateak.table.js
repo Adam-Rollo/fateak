@@ -16,6 +16,10 @@
         return this;
     };
 
+    jQuery.fn.FTableReload = function(opt) {
+        loadData(this);
+    }
+
     var initTable = function(table) {
         createHtmlElements(table);
         loadData(table, 1);
@@ -36,6 +40,7 @@
         table.find("table").before(beforeHtml);
         var afterHtml = "<div class='fateak-pagination' style='height:35px'><nav><ul></ul></nav></div>";
         afterHtml += "<div style='display:none'>"
+            + "<input class='table-page' type='hidden' value='1' />"
             + "<input class='table-sort' type='hidden' />"
             + "<input class='table-order' type='hidden' value='DESC' />";
             + "</div>";
@@ -46,11 +51,13 @@
         });
     }
 
-    var loadData = function(table, page) {
+    var loadData = function(table) {
         var table_options = table.data('options');
         var tb = table.find('tbody');
         tb.html("<tr><td>" + table_options['i18n']['Loading Data...'] + "</td></tr>");
         var container = $("#fateak-table-" + table_options['tid']);
+
+        var page = arguments[1] ? arguments[1] : container.parent().find(".table-page").val();
         var rowsPerPage = parseInt(container.find(".rows-per-page").val());
         var keytype = container.find(".search-type").val();
         var keyword = container.find(".search-content").val();
@@ -112,6 +119,7 @@
     var selectPage = function(page) {
         var pageNumber = page.find('a').attr('page'); 
         var table = $("#fateak-table-" + page.find('a').attr('table')).parent();
+        table.find('.table-page').val(pageNumber);
         loadData(table, pageNumber);
     }
 

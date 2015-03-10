@@ -18,13 +18,20 @@ class Fateak_FTable
     /**
      * load data from database and $_GET
      */
-    public function __construct(Model $model, $params)
+    public function __construct(Model $model, $params, $options = array('fuzzy' => TRUE))
     {
         $offset = ($params['page'] - 1) * $params['rowsPerPage'];
         if ($params['keyword'])
         {
-            // if processing become slow. delete "%" and use '='.
-            $model->where($params['keytype'], 'LIKE', '%'.$params['keyword'].'%');
+            if ($options['fuzzy'])
+            {
+                // if processing become slow. delete "%" and use '='.
+                $model->where($params['keytype'], 'LIKE', '%'.$params['keyword'].'%');
+            }
+            else
+            {
+                $model->where($params['keytype'], '=', $params['keyword']);
+            }
         }
         $this->_total_numbers = $model->reset(FALSE)->count_all();
 

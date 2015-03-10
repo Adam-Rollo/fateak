@@ -94,18 +94,36 @@ abstract class Kohana_Controller {
 	 * Automatically executed before the controller action. Can be used to set
 	 * class properties, do authorization checks, and execute other custom code.
 	 *
+         * Fateak - Rollo
+         * init modules in Request (not before request)
+         *
 	 * @return  void
 	 */
 	public function before()
 	{
-		// Nothing by default
+                // execute action before controller
+                $errors = array();
+                Module::action('before_controller', $errors);
+                
+                // process event errors
+                if (! empty($errors))
+                {
+                    $error_messages = "";
+                    foreach ($errors as $error)
+                    {
+                        $error_messages .= __($error) . " " . PHP_EOL;
+                    }
+
+                    throw new Kohana_Exception($error_messages);
+                }
+
 	}
 
 	/**
 	 * Automatically executed after the controller action. Can be used to apply
 	 * transformation to the response, add extra output, and execute
 	 * other custom code.
-	 *
+         *
 	 * @return  void
 	 */
 	public function after()

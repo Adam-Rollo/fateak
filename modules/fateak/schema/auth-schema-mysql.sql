@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(64) NOT NULL,
   `status` tinyint(4) NOT NULL COMMENT '0:block;1:available',
   `timezone` varchar(31) NOT NULL DEFAULT 'UTC',
-  `language` varchar(15) NOT NULL DEFAULT 'en_US',
+  `language` varchar(15) DEFAULT 'en_US',
   `logins` int(10) unsigned NOT NULL DEFAULT '0',
   `last_login` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),

@@ -40,6 +40,7 @@ class Fateak_User
 
     /**
      * Return the active user.  If there's no active user, return null.
+     * Assign array() to $extra_info to get an instance of class User.
      *
      * @param  Array
      * @return User
