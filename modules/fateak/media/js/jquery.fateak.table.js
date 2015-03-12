@@ -29,7 +29,7 @@
     var createHtmlElements = function(table) {
         var table_options = table.data('options');
         var beforeHtml = "<div id='fateak-table-" + table_options['tid'] + "'>"
-            + "<select class='rows-per-page'><option value='1'>1</option><option value='10'>10</option><option value='50'>50</option></select> " + table_options['i18n']['Rows/Page']
+            + "<select class='rows-per-page'><option value='10'>10</option><option value='50'>50</option></select> " + table_options['i18n']['Rows/Page']
             + "<input class='search-content' type='text' /><select class='search-type'>";
         for (var i in table_options['search']) {
             beforeHtml += "<option value='" + i + "'>" + table_options['search'][i] + "</option>"

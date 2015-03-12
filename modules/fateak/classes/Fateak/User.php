@@ -15,7 +15,7 @@ class Fateak_User
      * Cache the user info
      * @var User
      */
-    protected static $_user = NULL;
+    protected static $_current_user = NULL;
 
     /**
      * Base information
@@ -47,7 +47,7 @@ class Fateak_User
      */
     public static function active_user( $extra_info = NULL )
     {
-        if (is_null(self::$_user)) 
+        if (is_null(self::$_current_user)) 
         {
 
             $base_info =  Auth::instance()->get_user();
@@ -57,33 +57,24 @@ class Fateak_User
                 return null;
             }
 
-            self::$_user = new User(array('base' => $base_info));
+            self::$_current_user = new User(array('base' => $base_info), $extra_info);
         }
         else
         {
-            $base_info = self::$_user->get();
+            $base_info = self::$_current_user->get();
         }
 
         $roles = ACL::get_user_roles($base_info);
 
         foreach ($roles as $role)
         {
-            self::$_user->_roles[] = $role->name;
+            self::$_current_user->_roles[] = $role->name;
 
         }
 
-        self::$_user->_permissions = ACL::get_user_permissions($base_info);
+        self::$_current_user->_permissions = ACL::get_user_permissions($base_info);
 
-
-        if (! is_null($extra_info) && is_array($extra_info))
-        {
-            foreach ($extra_info as $info)
-            {
-                self::$_user->add_extra_info();
-            }
-        }
-
-        return is_null($extra_info) ? self::$_user->get() : self::$_user;
+        return is_null($extra_info) ? self::$_current_user->get() : self::$_current_user;
     }
 
 
@@ -91,9 +82,17 @@ class Fateak_User
      * construction
      * @param Model_User
      */
-    public function __construct( $info )
+    public function __construct( $info, $extra_info )
     {
         $this->_base_info = $info['base'];
+
+        if (! is_null($extra_info) && is_array($extra_info))
+        {
+            foreach ($extra_info as $info)
+            {
+                $this->add_extra_info();
+            }
+        }
     }
 
     /**

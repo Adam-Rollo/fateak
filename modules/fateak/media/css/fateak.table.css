@@ -13,3 +13,5 @@
 
 .f-sort-icon {color: #AAA; cursor: pointer; margin-left: 10px}
 .f-sort-icon:hover {color: #5AD}
+
+table a {cursor:pointer}
