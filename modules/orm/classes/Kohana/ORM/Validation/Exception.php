@@ -195,4 +195,29 @@ class Kohana_ORM_Validation_Exception extends Kohana_Exception {
 	{
 		return $this->_alias;
 	}
+
+        /**
+         * Fateak - Rollo
+         */
+        public function as_array($array)
+        {
+                if (isset($array['_external']))
+                {
+                        foreach ($array['_external'] as $k => $v)
+                        {
+                                if(isset($array[$k]))
+                                {
+                                        $array[$k] .= PHP_EOL . $v;
+                                }
+                                else
+                                {
+                                        $array[$k] = $v;
+                                }
+                        }
+                        unset($array['_external']);
+                }
+
+                return $array;
+        }
+
 } // End Kohana_ORM_Validation_Exception

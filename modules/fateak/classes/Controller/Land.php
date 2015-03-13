@@ -38,6 +38,7 @@ abstract class Controller_Land extends Controller_Template
         if ($this->is_ajax)
         {
             $this->ajax = new Fajax();
+            $this->init_controller();
             return;
         }
             

@@ -9,6 +9,14 @@
  */
 class Model_Auth_User extends ORM {
 
+        /**
+         * Fateak - Rollo
+         * Has One relationshop for Table division.
+         */
+        protected $_has_one = array(
+                'user_profile' => array('model' => 'User_Profile', 'foreign_key' => 'id'),        
+        );
+
 	/**
 	 * A user has many tokens and roles
 	 *

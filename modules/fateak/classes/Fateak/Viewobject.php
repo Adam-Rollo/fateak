@@ -48,7 +48,6 @@ class Fateak_Viewobject implements arrayaccess
 
     public function offsetGet($offset) 
     {
-        echo $offset;
         return isset($this->container[$offset]) ? $this->container[$offset] : null;
     }
 }

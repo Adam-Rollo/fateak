@@ -2,13 +2,15 @@
 (function($){
 
     var modalSettings = {
-        width: '600px',
+        errorMessage: 'Unbelievable Error.',
     };
  
     var formSettings = {
+        width: '600px',
         params: {},
         btnWords: {'save':'Save', 'cancel':'Cancel'},
         formURL: window.location.href, 
+        success: function(){alert("Operation successfully.")},
     };
 
     var options = {};
@@ -29,6 +31,7 @@
             + '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
             + '<h4 class="modal-title" id="myModalLabel">Loading title</h4>'
             + '</div>'
+            + '<div class="modal-alert" style="margin:10px 20px 0px 20px"></div>'
             + '<div class="modal-body">'
             + 'Loading data...'
             + '</div>'
@@ -40,8 +43,6 @@
             + '</div>'
             + '</div>';
         div.append(modal);
-
-        div.find(".modal-dialog").css({'width': opt.width});
 
         div.find(".fm-save").click(function(){
             div.find("form").submit();        
@@ -56,9 +57,9 @@
     };
 
     var initForm = function(div) {
-        console.log(options);
         div.find(".fm-close").html(options['btnWords']['close']);
         div.find(".fm-save").html(options['btnWords']['save']);
+        div.find(".modal-dialog").css({'width': options['width']});
         $.getJSON(options.formURL, options.params, function(result){
             div.find(".modal-title").html(result.data.title);
             div.find(".modal-body").html(result.data.form); 
@@ -67,19 +68,29 @@
                 var formData = new FormData(this);
                 $.ajax({
                     type: 'POST',
+                    dataType: 'json',
                     url: $(this).attr('action'),
                     data: formData,
                     cache: false,
                     contentType: false,
                     processData: false,
                     success: function(data){
-                        div.find(".fm-close").click();
+                        if (data.success == 'Y') {
+                            div.find(".modal-alert").html("");
+                            div.find(".fm-close").click();
+                            options.success();
+                        } else {
+                            var messages = '<div style="margin-bottom:5px" class="alert alert-warning alert-dismissible" role="alert">'
+                                + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                                + '<span aria-hidden="true">&times;</span></button><ul>';
+                            for (var i in data.message)
+                                messages += "<li>" + data.message[i] + '</li>';
+                            div.find(".modal-alert").html(messages + '</ul></div>');
+                        }
                     },
                     error: function(data){
-                        var messages = "";
-                        for (var i in data.message)
-                            messages += data.message[i] + " ";
-                        alert(messages);
+                        console.log(data);
+                        alert(modalSettings.errorMessage);
                     }
                 });
             });     

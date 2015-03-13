@@ -892,7 +892,8 @@ class Kohana_ORM extends Model implements serializable {
 		foreach (array_keys($target->_object) as $column)
 		{
 			$name = $target_path.'.'.$column;
-			$alias = $target_path.':'.$column;
+			// Fateak - Rollo change modifier ":" to "_"
+			$alias = $target_path.'_'.$column;
 
 			// Add the prefix so that load_result can determine the relationship
 			$this->select(array($name, $alias));
