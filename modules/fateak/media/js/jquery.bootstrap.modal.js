@@ -32,7 +32,7 @@
             + '<h4 class="modal-title" id="myModalLabel">Loading title</h4>'
             + '</div>'
             + '<div class="modal-alert" style="margin:10px 20px 0px 20px"></div>'
-            + '<div class="modal-body">'
+            + '<div class="modal-body ajax-modal-body">'
             + 'Loading data...'
             + '</div>'
             + '<div class="modal-footer">'
@@ -62,8 +62,8 @@
         div.find(".modal-dialog").css({'width': options['width']});
         $.getJSON(options.formURL, options.params, function(result){
             div.find(".modal-title").html(result.data.title);
-            div.find(".modal-body").html(result.data.form); 
-            div.find("form").on("submit", function(e){
+            div.find(".ajax-modal-body").html(result.data.form); 
+            div.find(".main-form").on("submit", function(e){
                 e.preventDefault();
                 var formData = new FormData(this);
                 $.ajax({

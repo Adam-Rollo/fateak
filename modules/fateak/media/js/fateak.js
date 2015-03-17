@@ -57,3 +57,45 @@ function mergeObjects(obj1, obj2)
     return newOb;
 }
 
+
+/* ========================================================================
+    JQuery functions 
+   ===================================================================== */
+
+(function($){
+
+    /* ========================================================================
+        JQuery find specific parent node
+    ===================================================================== */
+
+    jQuery.fn.FFindUpper = function(flag) {
+        var upper = this.parent();
+        if (upper.is('body'))
+        {
+            return upper;
+        }
+        var flagType = flag.substr(0, 1);
+        var flagV = flag.substr(1);
+        switch (flagType)
+        {
+        case '#':
+            if (upper.attr('id') == flagV) {
+                return upper;
+            }
+            break;
+        case '.':
+            if (upper.hasClass(flagV)) {
+                return upper;
+            }
+            break;
+        default:
+            if (upper.is(flag)) {
+                return upper;
+            }
+        }
+
+        return upper.FFindUpper(flag);
+    };
+
+})(jQuery);
+

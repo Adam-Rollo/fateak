@@ -90,6 +90,7 @@ class Kohana_Form {
 	/**
 	 * Creates a form input. If no type is specified, a "text" type input will
 	 * be returned.
+         * Fateak - Rollo
 	 *
 	 *     echo Form::input('username', $username);
 	 *
@@ -102,7 +103,10 @@ class Kohana_Form {
 	public static function input($name, $value = NULL, array $attributes = NULL)
 	{
 		// Set the input name
-		$attributes['name'] = $name;
+                if (! is_null($name))
+                {
+		        $attributes['name'] = $name;
+                }
 
 		// Set the input value
 		$attributes['value'] = $value;
@@ -154,19 +158,62 @@ class Kohana_Form {
 
 	/**
 	 * Creates a file upload form input. No input value can be specified.
+         * Fateak - Rollo
+         * Vendor: JCrop
+         * You must load JCrop script and stylesheet in controller :
+         * Assets::add_body_js('jcrop', 'assets/vendor/jcrop/js/jquery.Jcrop.min.js', -2);
+         * Assets::add_body_js('fimage', 'assets/js/jquery.fateak.image.js', 2);
+         * Assets::add_css('jcrop', 'assets/vendor/jcrop/css/jquery.Jcrop.min.css', -2);
 	 *
 	 *     echo Form::file('image');
 	 *
 	 * @param   string  $name       input name
 	 * @param   array   $attributes html attributes
+         * @param   array   key: default/type(file,image)/crop(true,false)/width/height
 	 * @return  string
 	 * @uses    Form::input
 	 */
-	public static function file($name, array $attributes = NULL)
+	public static function file($name, array $attributes = NULL, $options = array('default' => NULL) )
 	{
 		$attributes['type'] = 'file';
 
-		return Form::input($name, NULL, $attributes);
+                $output = Form::input($name, NULL, $attributes);
+
+                if (! isset($options['type']))
+                {
+                        $options['type'] = 'file';
+                }
+
+                if ( $options['type'] == 'image' )
+                {
+                        $options['crop'] = isset($options['crop']) ? $options['crop'] : FALSE;
+
+                        if ($options['crop'])
+                        {
+                                $options['width'] = isset($options['width']) ? $options['width'] : NULL;
+                                $options['height'] = isset($options['height']) ? $options['height'] : NULL;
+
+                                if (! isset($attributes['id']))
+                                {
+                                        $attributes['id'] = $name;
+                                }
+
+                                $upload_button = "<input class='fupload-image' upb='{$name}' type='button' value='" . __('Upload') . "' data-toggle='modal' data-target='#fup-{$name}' />"; 
+                                $hidden_input = Form::hidden($name, NULL, array('upi' => $name));
+                                $script = "<script>"
+                                        . "(function($){"
+                                        . "$(\"input[upb='{$name}']\").FImage({'fid':'{$name}','siteURL':'" . URL::base() . "'});"
+                                        . "})(jQuery);"
+                                        . "</script>";
+
+                                $output = $upload_button . $hidden_input . $script;
+                        }
+
+                }
+
+
+
+		return $output;
 	}
 
 	/**
