@@ -57,6 +57,7 @@ abstract class Controller_Admin extends Controller_Template
             }
             else 
             {
+                // Related to Auth_ORM's _login, every user must have 'login role'
                 if (! $user->is_role('login'))
                 {
                     Message::alert(__('You haven\'t permission to login.'));

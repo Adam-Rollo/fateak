@@ -7,6 +7,6 @@ class Controller_Upload extends Controller
      */
     public function action_index()
     {
-        $this->response->body(print_r($_POST, 1));
+        $this->response->body(print_r($_FILES, 1));
     }
 }

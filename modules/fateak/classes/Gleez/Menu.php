@@ -349,13 +349,32 @@ class Gleez_Menu {
 		// Start with an empty $right stack
 		$stack = array();
 
+                // Fateak ACL Menu
+                $ignore_parent_stack = array();
+
 		foreach( $items as &$item)
 		{
                         // Fateak ACL Menu
-                        $menu_key = 'menu-' . $item['name'];
-                        if (! ACL::check($menu_key))
+                        if (in_array('acl', $options))
                         {
-                                continue; 
+                                $ignore_parent_count = count($ignore_parent_stack);
+                                if ( $ignore_parent_count && $item['pid'] == $ignore_parent_stack[$ignore_parent_count - 1] )
+                                {
+                                        array_push($ignore_parent_stack, $item['id']);
+                                        continue;
+                                }
+                                else
+                                {
+                                       array_pop($ignore_parent_stack);
+                                }
+
+                                $menu_key = 'menu-' . $item['name'];
+                                
+                                if (! ACL::check($menu_key))
+                                {
+                                        array_push($ignore_parent_stack, $item['id']);
+                                        continue; 
+                                }
                         }
 
 			// check if we should remove a node from the stack
@@ -388,9 +407,9 @@ class Gleez_Menu {
 	 * @param   string   $name The name of the menu
 	 * @return  object   Menu
 	 */
-	public static function items($name)
+	public static function items($name, $options = array())
 	{
-		$cache = Cache::instance('menus');
+		$cache = Cache::instance();
 
 		if( ! $items = $cache->get($name) )
 		{
@@ -426,8 +445,34 @@ class Gleez_Menu {
 		// start with an empty $right stack
 		$stack = array();
 
+                // Fateak ACL Menu
+                $ignore_parent_stack = array();
+
 		foreach( $items as &$item)
 		{
+                        // Fateak ACL Menu
+                        if (in_array('acl', $options))
+                        {
+                                $ignore_parent_count = count($ignore_parent_stack);
+                                if ( $ignore_parent_count && $item['pid'] == $ignore_parent_stack[$ignore_parent_count - 1] )
+                                {
+                                        array_push($ignore_parent_stack, $item['id']);
+                                        continue;
+                                }
+                                else
+                                {
+                                       array_pop($ignore_parent_stack);
+                                }
+
+                                $menu_key = 'menu-' . $item['name'];
+                                
+                                if (! ACL::check($menu_key))
+                                {
+                                        array_push($ignore_parent_stack, $item['id']);
+                                        continue; 
+                                }
+                        }
+
 			// check if we should remove a node from the stack
 			while(count($stack) > 0 AND $stack[count($stack) - 1]['rgt'] < $item['rgt'])
 			{
@@ -450,8 +495,8 @@ class Gleez_Menu {
 		unset( $stack );
 
 		// Enable developers to override menu
-		Module::event('menus_items', $menu);
-		Module::event("menus_items_{$name}", $menu);
+		Module::action('menus_items', $menu);
+		Module::action("menus_items_{$name}", $menu);
 
 		return $menu;
 	}
@@ -563,7 +608,7 @@ class Gleez_Menu {
          * Get root menu with ACL
          * Fateak - Rollo
          */
-        public static function root_menus()
+        public static function root_menus($options = array())
         {
                 $roots = ORM::factory('Menu')
                         ->where('pid', '=', 0)
@@ -574,7 +619,7 @@ class Gleez_Menu {
                 foreach ($roots as $root)
                 {
                         $permmision = 'menu-' . $root->name;
-                        if (ACL::check($permmision))
+                        if ( (! in_array('acl', $options)) || ACL::check($permmision) )
                         {
                                 $result[] = $root; 
                         }

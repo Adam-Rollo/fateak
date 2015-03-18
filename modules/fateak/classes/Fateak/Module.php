@@ -6,6 +6,14 @@
 class Fateak_Module
 {
     /**
+     * Get all active modules
+     */
+    public static function modules($modules = NULL)
+    {
+        return Kohana::modules($modules);
+    } 
+
+    /**
      * Call to execute a Module action
      * @param string The name of the action to execute
      * @param mixed The value to action.

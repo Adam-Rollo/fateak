@@ -8,51 +8,8 @@ class Fateak_ACL
     /** Rule type: allow */
     const ALLOW = TRUE;
 
-    public static $_all_perms = array();
-
     public static $_perm = array();
 
-    /**
-     * Returns a specific permission
-     *
-     * @param   string  $name The name of the permission.
-     * @return  ACL
-     * @throws  Gleez_Exception
-     */
-    public static function get($name)
-    {
-        if ( ! isset(self::$_all_perms[$name]))
-        {
-            throw new Gleez_Exception('The requested Permission does not exist: :permission',
-                    array(':permission' => $name));
-        }
-
-        return self::$_all_perms[$name];
-    }
-
-    /**
-     * Sets up a named Permission and returns it.
-     *
-     * Example:
-     * ~~~
-     *  ACL::set('admin/widgets',
-     *    array(
-     *      'administer site widgets',
-     *      'administer admin widgets'
-     *    )
-     * );
-     * ~~~
-     *
-     * @param   string  $name          Permission name
-     * @param   array   $access_names  Access keys
-     *
-     * @return  ACL
-     */
-    public static function set($name, array $access_names)
-    {
-        // Adds the action to the action array and returns it.
-        return self::$_all_perms[$name] = $access_names;
-    }
 
     /**
      * Retrieves all named permissions
@@ -62,11 +19,129 @@ class Fateak_ACL
      * $permissions = ACL::all();
      * ~~~
      *
+     * @param   boolean 
      * @return  array  Perms by name
      */
-    public static function all()
+    public static function all($refresh_cache = FALSE)
     {
+        $result = array();
+
+        $result['menus'] = self::menus_permission();
         return self::$_all_perms;
+    }
+
+    /**
+     * Get permissions from config/acl.php
+     */
+    public static function extra_permissions()
+    {
+        $config = Kohana::$config->load('acl');
+
+        return $config->as_array();
+    }
+
+    /**
+     * Get action permissions
+     */
+    public static function action_permissions()
+    {
+        $modules = Module::modules();
+        $permissions = array();
+
+        foreach ($modules as $name => $path)
+        {
+            $controller_path = $path . 'classes' . DS . 'Controller';
+
+            $permissions[$name] = self::find_actions($controller_path); 
+        }
+
+        return $permissions;
+    }
+
+    /**
+     * Find all actions of controller
+     */
+    protected static function find_actions($path)
+    {
+        $result = array();
+
+        if (is_dir($path))
+        {
+            $dir = opendir($path);
+        }
+        else
+        {
+            return null;
+        }
+
+        while (($cp = readdir($dir)) !== false)
+        {
+            if ($cp == '.' || $cp == '..')
+            {
+                continue; 
+            }
+
+            $full_path = $path . DS . $cp;
+
+            if (is_dir($full_path))
+            {
+                $result[$cp] = self::find_actions($full_path); 
+            }
+            else
+            {
+                $class_name = substr($cp, 0, strpos('.', $cp));
+                $result[$cp] = $class_name;
+            }
+
+            // Release memory in loop
+            unset($cp);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get permissions from menus
+     *
+     * Example: Access Permission of user-list is called menu-user-list
+     */
+    public static function menus_permissions()
+    {
+        $result = array();
+        $menus = array();
+
+        $root_menus = Menu::root_menus(); 
+
+        foreach ($root_menus as $root_menu)
+        {
+            $menus[$root_menu->name] = array('children' => Menu::items($root_menu->name)->get_items()); 
+        }
+
+        $result = self::menu2permission($menus);
+        
+        return $result;
+    }
+
+    /**
+     * Calculation of menus
+     */
+    protected static function menu2permission($menus)
+    {
+        $permissions = array();
+
+        foreach ($menus as $name => $detail)
+        {
+            if (is_array($detail) && is_array($detail['children']) )
+            {
+                $permissions['menu-' . $name] = self::menu2permission($detail['children']);
+            }
+            else
+            {
+                $permissions['menu-' . $name] = $detail['url']; 
+            }
+        }
+
+        return $permissions;
     }
 
     /**
@@ -239,6 +314,11 @@ class Fateak_ACL
         {
             // Just get the default instance.
             $user = User::active_user();
+
+            if (is_null($user))
+            {
+                return false;
+            }
         }
 
         // User #2 has all privileges:
