@@ -20,7 +20,13 @@ class Fateak_Module
      */
     public static function action($action, $return = array())
     {
-        list( $action, $return ) = func_get_args();
+        $oringial_args = func_get_args();
+        if (count($oringial_args) == 1)
+        {
+            $oringial_args[] = array();
+        }
+        list( $action, $return ) = $oringial_args;
+
         $function = str_replace(".", "_", $action);
         $filterargs = array_slice(func_get_args(), 2);
 

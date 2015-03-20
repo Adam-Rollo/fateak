@@ -200,9 +200,13 @@ class Kohana_Form {
 
                                 $upload_button = "<input class='fupload-image' upb='{$name}' type='button' value='" . __('Upload') . "' data-toggle='modal' data-target='#fup-{$name}' />"; 
                                 $hidden_input = Form::hidden($name, NULL, array('upi' => $name));
+
+                                $upload_url_query = isset($options['upload_query']) ? ( "?" . $options['upload_query'] ) : ""; 
+                                $upload_url = URL::base() . "upload" . $upload_url_query;
+
                                 $script = "<script>"
                                         . "(function($){"
-                                        . "$(\"input[upb='{$name}']\").FImage({'fid':'{$name}','siteURL':'" . URL::base() . "'});"
+                                        . "$(\"input[upb='{$name}']\").FImage({'fid':'{$name}','siteURL':'" . $upload_url . "'});"
                                         . "})(jQuery);"
                                         . "</script>";
 

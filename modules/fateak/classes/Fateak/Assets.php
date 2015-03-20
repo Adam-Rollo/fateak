@@ -112,5 +112,34 @@ class Fateak_Assets
 
         return ($a_weight > $b_weight) ? +1 : -1;
     }
+
+    /**
+     * make url convert to real path
+     * Fateak - Rollo
+     */
+    public static function url2path($url)
+    {
+        $relative_url = trim(str_replace("/assets/", "", $url), "/");
+
+        $path_url = APPPATH . 'media' . DS . $relative_url;
+
+        $path = str_replace("/", DS, $path_url);
+
+        return $path;
+    }
+
+    /**
+     * make real path convert to url
+     * Fateak - Rollo
+     */
+    public static function path2url($path)
+    {
+        $assets_path = APPPATH . 'media';
+
+        $relative_path = trim(str_replace($assets_path, "", $path), DS);
+        $url = "/assets/" . str_replace(DS, "/", $relative_path);
+
+        return $url;
+    }
 }
 

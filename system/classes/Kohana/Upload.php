@@ -253,4 +253,47 @@ class Kohana_Upload {
 		return FALSE;
 	}
 
+        /**
+         * Check whether file directory is writable
+         * Fateak - Rollo
+         *
+         * @return boolean writable?
+         */
+        public static function dir_writable()
+        {
+                $media_path = APPPATH . 'media';
+
+                $user_media_path = $media_path . DS . "users";
+
+                return is_writable($media_path) && is_dir($user_media_path) && is_writable($user_media_path);
+        }
+
+        /**
+         * Check whether uploaded file is exist
+         *
+         * Fateak - Rollo
+         */
+        protected static function process_twins($filename)
+        {
+                if (is_file($filename))
+                {
+                        $index = 0;
+
+                        do 
+                        {
+                                $index++;
+                                $other_name = substr($filename, 0, strrpos($filename, '.'));
+                                $other_name = $other_name . '(' . $index . ')';
+                                $ext = substr($filename, strrpos($filename, '.'));
+                                $other_name .= $ext;
+
+                        }
+                        while (is_file($other_name));
+
+                        return $other_name;
+                }
+
+                return $filename;
+        }
+
 }

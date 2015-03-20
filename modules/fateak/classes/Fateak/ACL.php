@@ -60,6 +60,8 @@ class Fateak_ACL
 
     /**
      * Find all actions of controller
+     *
+     * Example: Access Permission of action_add() in Controller_User is called controller_user_action_add
      */
     protected static function find_actions($path)
     {
@@ -76,7 +78,7 @@ class Fateak_ACL
 
         while (($cp = readdir($dir)) !== false)
         {
-            if ($cp == '.' || $cp == '..')
+            if ($cp[0] == '.')
             {
                 continue; 
             }
@@ -89,8 +91,38 @@ class Fateak_ACL
             }
             else
             {
-                $class_name = substr($cp, 0, strpos('.', $cp));
-                $result[$cp] = $class_name;
+                $relative_path = str_replace(DS, '_', substr($path, strpos($path, 'Controller')));
+                $class_name = $relative_path . "_" . substr($cp, 0, strpos($cp, '.'));
+                $reflected_class = new ReflectionClass($class_name);
+
+                if ($reflected_class->isAbstract())
+                {
+                    continue;
+                }
+
+                $all_methods = $reflected_class->getMethods();
+                $action_methods = array();
+
+                foreach ($all_methods as $method)
+                {
+                    if ($method->class != $class_name)
+                    {
+                        continue;
+                    }
+                    
+                    $document = $method->getDocComment();
+                    if ( strstr($document, 'fateak-action-acl') === false )
+                    {
+                        continue;
+                    }
+
+                    $action_methods[] = strtolower($class_name . "_" . $method->name);
+                }
+
+                if (! empty($action_methods))
+                {
+                    $result[$class_name] = $action_methods;
+                }
             }
 
             // Release memory in loop

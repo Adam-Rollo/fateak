@@ -24,4 +24,9 @@ return array(
 	    'locale'    => array('zh_CN.utf-8'),
 	),
     ),
+
+    /**
+     * server charset for development
+     */
+    'server_iconv' => 'UTF-8',
 );

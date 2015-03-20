@@ -2,7 +2,7 @@
 
     var settings = {
         fid: 'default',
-        siteURL: '/',
+        uploadURL: '/',
         words: {'upload_image':'Upload image', '_confirm':'Confirm', 'close':'Close'}
     };
      
@@ -14,7 +14,7 @@
 
     var initImageForm = function(img) {
         var exForm = img.FFindUpper('form');
-        var fileForm = "<form action='" + img.options.siteURL + "upload' method='post' upf='" + img.options.fid + "'>"
+        var fileForm = "<form action='" + img.options.siteURL + "' method='post' upf='" + img.options.fid + "'>"
             + "<input class='fimageuploader' name='image' type='file' />" 
             + "<div class='croparea'></div>"
             + "</form>";
@@ -35,19 +35,25 @@
 
         exForm.after(popDiv);
 
+        // You must load jquery.base.mask.js (By Rollo)
+        $("body").initMask();
+
         $("form[upf='" + img.options.fid + "']").on('submit', function(e){
+            maskOn();
             e.preventDefault();
             var formData = new FormData(this);
- 
+
             $.ajax({
                 type: 'POST',
+                dataType: 'json',
                 url: $(this).attr('action'),
                 data: formData,
                 cache: false,
                 contentType: false,
                 processData: false,
                 success: function(data){
-                    startCrop();
+                    startCrop(img.options.fid, data['data']['image']);
+                    maskOff();
                 },
                 error: function(data){
                     console.log("error:"+data);
@@ -65,8 +71,9 @@
         });
     }
 
-    var startCrop = function() {
-        console.log('cool');
+    var startCrop = function(form, image) {
+        var img = "<img src='" + image + "' />";
+        $("form[upf='"+form+"']").find(".croparea").html(img);
     };
     
 })(jQuery);

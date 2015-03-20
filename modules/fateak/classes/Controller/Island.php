@@ -9,7 +9,7 @@
  * 
  * @author Rollo - Fateak
  */
-class Controller_Island extends Controller
+abstract class Controller_Island extends Controller
 {
 
 }
