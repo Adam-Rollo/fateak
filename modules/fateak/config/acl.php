@@ -1,6 +1,11 @@
 <?php
 
-return array(
+return array
+(
+    /**
+     * Allow user operate other users's file 
+     */
+    'manage all files' => __('Allow user to operator all of files.'),
 
-    'view all nodes' => __('Allow user to view all of nodes.'),
+
 );

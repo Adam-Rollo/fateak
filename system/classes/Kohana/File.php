@@ -250,4 +250,12 @@ class Kohana_File {
 		return pathinfo($file, PATHINFO_EXTENSION);
 	}
 
+        /**
+         * Change a random name for an unique uploaded file
+         */
+        public static function changeName($filename)
+        {
+
+        }
+
 }

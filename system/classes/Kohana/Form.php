@@ -199,18 +199,33 @@ class Kohana_Form {
                                 }
 
                                 $upload_button = "<input class='fupload-image' upb='{$name}' type='button' value='" . __('Upload') . "' data-toggle='modal' data-target='#fup-{$name}' />"; 
+                                $image_area = "<div id='preupimage-{$name}' ></div>";
                                 $hidden_input = Form::hidden($name, NULL, array('upi' => $name));
 
                                 $upload_url_query = isset($options['upload_query']) ? ( "?" . $options['upload_query'] ) : ""; 
                                 $upload_url = URL::base() . "upload" . $upload_url_query;
+                                $crop_url_query = isset($options['crop_query']) ? ( "?" . $options['crop_query'] ) : ""; 
+                                $crop_url = URL::base() . "upload/crop" . $crop_url_query;
+
+                                $extra_params = array(
+                                    "'fid':'{$name}'", 
+                                    "'uploadURL':'{$upload_url}'",       
+                                    "'cropURL':'{$crop_url}'",
+                                );
+                                if (isset($options['aspect_ratio']))
+                                {
+                                    $extra_params[] = "'aspectRatio':'" . $options['aspect_ratio'] . "'";
+                                }
+                                $extra_params = implode(',', $extra_params);
 
                                 $script = "<script>"
                                         . "(function($){"
-                                        . "$(\"input[upb='{$name}']\").FImage({'fid':'{$name}','siteURL':'" . $upload_url . "'});"
+                                        . "$(\"input[upb='{$name}']\").FImage({'fid':'{$name}','uploadURL':'" . $upload_url . "',"
+                                        . $extra_params . "});"
                                         . "})(jQuery);"
                                         . "</script>";
 
-                                $output = $upload_button . $hidden_input . $script;
+                                $output = $upload_button . $image_area . $hidden_input . $script;
                         }
 
                 }
