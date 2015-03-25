@@ -57,6 +57,66 @@ function mergeObjects(obj1, obj2)
     return newOb;
 }
 
+/* ========================================================================
+    Json convert to Object or Array and reverse
+   ===================================================================== */
+
+function json2obj(str)
+{
+    return eval('(' + str + ')');
+}
+
+function obj2json(obj)
+{
+    var json = "{";
+    var json_array = [];
+    for (var i in obj) {
+       json_array.push('"' + i + '":"' + obj[i] + '"');
+    }
+    json += json_array.join(",") + "}";
+
+    return json;
+}
+
+function json2arr(str)
+{
+    return eval('(' + str + ')');
+}
+
+function arr2json(obj)
+{
+    var json = "[";
+    var json_array = [];
+    for (var i in obj) {
+       json_array.push('"' + obj[i] + '"');
+    }
+    json += json_array.join(",") + "]";
+
+    return json;
+
+}
+
+/* ========================================================================
+    Delete Array item
+   ===================================================================== */
+
+function delArrayItem(arr, item)
+{
+    var offset = null;
+
+    for (var i in arr) {
+        if (arr[i] == item) {
+            offset = i;
+        }
+    }
+
+    if (offset != null) {
+        arr.splice(offset, 1);
+    }
+
+    return arr;
+}
+
 
 /* ========================================================================
     JQuery functions 

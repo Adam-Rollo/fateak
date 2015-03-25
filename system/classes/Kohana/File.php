@@ -252,10 +252,64 @@ class Kohana_File {
 
         /**
          * Change a random name for an unique uploaded file
+         *
          */
-        public static function changeName($filename)
+        public static function changeName($filename, $more_entropy = FALSE)
         {
+            $replace_length = $more_entropy ? 23 : 13;
 
+            if (strstr($filename, DS))
+            {
+                $offset = strrpos($filename, DS) + 1;
+                $prefix = substr($filename, 0, $offset);
+
+                $filename = substr($filename, $offset);
+
+                $new_name = $prefix . uniqid("", $more_entropy) . substr($filename, $replace_length);
+
+            }
+            else
+            {
+                $new_name = uniqid("", $more_entropy) . substr($filename, $replace_length);
+            }
+
+            return $new_name;
         }
+
+	/**
+	 * Delete file or directory recursevely
+         * From Gleez
+	 *
+	 * @param string $file
+	 * @return void
+	 */
+	public static function delete($file)
+	{
+		if (is_dir($file))
+		{
+			$objects = scandir($file);
+			foreach ($objects as $object)
+			{
+				if ($object != '.' && $object != '..')
+				{
+					if (is_dir($file.'/'.$object))
+					{
+						File::delete($file.'/'.$object);
+					}
+					else
+					{
+						@unlink($file.'/'.$object);
+					}
+				}
+			}
+
+			reset($objects);
+			@rmdir($file);
+		}
+		elseif(is_file($file))
+		{
+			@unlink($file);
+		}
+	}
 
 }

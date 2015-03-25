@@ -144,9 +144,10 @@ class Controller_Upload extends Controller
 
         $file_src = Assets::url2path($this->request->post('filesrc'));
         $image = Image::factory($file_src);
-        $ratio = $image->width / $ruler;
+        $ratio = ($image->width > $ruler) ? $image->width / $ruler : 1;
 
         $ajax = new Fajax();
+        $new_file = File::changeName($file_src);
 
         try
         {
@@ -165,7 +166,7 @@ class Controller_Upload extends Controller
                 $image->crop($real_width, $real_height, $real_left, $real_top);
             }
 
-            $ajax->data($this->request->post('filesrc'));
+            $ajax->data(Assets::path2url($new_file));
         }
         catch (Exception $e)
         {
@@ -173,8 +174,9 @@ class Controller_Upload extends Controller
             $ajax->message($e->getMessage());
         }
 
-        $image->save();
-
+        $image->save($new_file);
+        File::delete($file_src);
+        
         $this->response->body($ajax->build_result());
     }
 }

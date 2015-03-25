@@ -199,7 +199,7 @@ class Kohana_Form {
                                 }
 
                                 $upload_button = "<input class='fupload-image' upb='{$name}' type='button' value='" . __('Upload') . "' data-toggle='modal' data-target='#fup-{$name}' />"; 
-                                $image_area = "<div id='preupimage-{$name}' ></div>";
+                                $image_area = "<div id='preupimage-{$name}' class='preupimage' imgarea='{$name}'></div>";
                                 $hidden_input = Form::hidden($name, NULL, array('upi' => $name));
 
                                 $upload_url_query = isset($options['upload_query']) ? ( "?" . $options['upload_query'] ) : ""; 

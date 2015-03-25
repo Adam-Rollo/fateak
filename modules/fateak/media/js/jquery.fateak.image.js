@@ -39,10 +39,16 @@
 
         $(".image-modal").remove();
 
+        var style = "<style>"
+            + ".fimg-item{position:relative;float:left;min-width:10px;height:110px;padding:5px; border:1px solid #CCC;background-color:#DDD;margin:5px}"
+            + ".fimg-item-board{position:absolute;left:0px;top:0px;font-size:18px;color:white;width:100%;background-color:black;opacity:0.8;padding-left:5px;line-height:20px;height:25px;display:none}"
+            + ".fimg-item-board span{cursor:pointer}"
+            + ".fimg-item-board span:hover{color:#AAF}"
+            + "</style>";
         if (exDiv.is("body")) {
-            exDiv.append(popDiv);
+            exDiv.append(popDiv + style);
         } else {
-            exDiv.after(popDiv);
+            exDiv.after(popDiv + style);
         }
 
         // You must load jquery.base.mask.js (By Rollo)
@@ -57,7 +63,6 @@
             + "<input class='filesrc' name='filesrc' type='hidden' />" 
             + "<input name='crop_absolutely' value='" + img.options.cropAbsolutely + "' type='hidden' />" 
             + "<input name='ruler_width' value='" + img.options.cropAreaWidth + "' type='hidden' />" 
-            + "<input class='filesrc' name='filesrc' type='hidden' />" 
             + crop_recorder
             + "</form>";
         var imgForm = $("form[upf='"+img.options.fid+"']");
@@ -121,17 +126,20 @@
                 processData: false,
                 success: function(data){
                     if (data['success'] == 'Y') {
-                        var imgItem = "<div style='position:relative;float:left;min-width:10px;height:120px;padding:10px 5px; border:1px solid #CCC'>"
+                        var imgItem = "<div class='fimg-item' img='" + data['data'] + "'>"
                             + "<img height='100px' src='" + data['data'] + "' />"
-                            + "<div style='position:absolute;left:10px;top:15px;font-size:18px;color:white'>&times;</div>"
+                            + "<div class='fimg-item-board' ><span>&times;</span></div>"
                             + "</div>";
                         $("#preupimage-" + img.options.fid).append(imgItem);
+                        $("div[img='" + data['data'] + "']").FUImgManager();
                         $(".close-iup").click();
+                        initUForm(img.options.fid);
                     }
                     maskOff();
                 },
                 error: function(data){
                     console.log("error:"+data);
+                    maskOff();
                 }
             });               
         });
@@ -165,5 +173,45 @@
         imgDiv.find(".crop-w").val(c.w);
         imgDiv.find(".crop-h").val(c.h);
     }
+
+    var initUForm = function(imgName) {
+        var imgForm = $("form[upf='"+imgName+"']");
+        var cropForm = $("form[upcf='"+imgName+"']");
+        imgForm.find(".croparea").html("");
+        imgForm.find(".fimageuploader").val("");
+        cropForm.find(".filesrc").val("");
+    }
+
+    jQuery.fn.FUImgManager = function(opt) {
+        var board_timer = null;
+        $(this).hover(function(){
+            board_timer = setTimeout("$('div[img=\"" + $(this).attr("img") + "\"]').find('.fimg-item-board').slideDown('fast');", 200);
+        }, function(){
+            $(this).find('.fimg-item-board').slideUp('fast');
+            clearTimeout(board_timer);
+        });
+
+        $(this).find("span").click(function(){
+            var image_name = $(this).FFindUpper('.preupimage').attr('imgarea');
+            var imgInput = $("input[upi='" + image_name + "']");
+            var imgValues = json2arr(imgInput.val());
+            var delImage = $(this).FFindUpper('.fimg-item');
+            imgValues = delArrayItem(imgValues, delImage.attr('img'));
+            imgInput.val(arr2json(imgValues));
+            delImage.remove();
+        });
+
+        var image_name = $(this).parent().attr('imgarea');
+        var imgInput = $("input[upi='" + image_name + "']");
+        var original_imgs = imgInput.val();
+        if (original_imgs == "") {
+            imgInput.val('["' + $(this).attr("img") + '"]');
+        } else {
+            original_imgs = json2arr(original_imgs);
+            original_imgs.push($(this).attr("img"));
+            imgInput.val(arr2json(original_imgs));
+        }
+    };
+
     
 })(jQuery);
