@@ -297,4 +297,36 @@ class Kohana_Upload {
                 return $filename;
         }
 
+        /**
+         * Move temp image to default or other directories
+         * Fateak - Rollo
+         *
+         * @param string use url for ease
+         * @param string url
+         */
+        public static function move_tmp_by_url($file_url, $dir = 'default')
+        {
+            $user = User::active_user();
+
+            preg_match("/(\/.*([\d]+)\/)tmp\/(.*)/", $file_url, $match);
+            $user_id = $match[2];
+
+            if ($user->id != $user_id)
+            {
+                ACL::required('manage all files');
+            }
+
+            $new_directory = Assets::url2path($match[1]) . DS . trim($dir, DS);
+            if (! is_dir($new_directory))
+            {
+                System::mkdir($new_directory); 
+            } 
+
+            $new_file = $new_directory . DS . $match['3'];
+
+            rename(Assets::url2path($file_url), $new_file);
+
+            return Assets::path2url($new_file);
+        }
+
 }

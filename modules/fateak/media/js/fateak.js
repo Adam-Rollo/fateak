@@ -80,6 +80,9 @@ function obj2json(obj)
 
 function json2arr(str)
 {
+    if (str == "")
+        return [];
+
     return eval('(' + str + ')');
 }
 
@@ -155,6 +158,25 @@ function delArrayItem(arr, item)
         }
 
         return upper.FFindUpper(flag);
+    };
+
+    /* ========================================================================
+        JQuery count input json value
+    ===================================================================== */
+
+    jQuery.fn.countValue = function() {
+        var isArr = arguments[0] ? arguments[0] : true;
+        var values = $(this).val(); 
+        if (isArr) {
+            values = json2arr(values);
+            return values.length;
+        } else {
+            var number = 0;
+            values = json2obj(values);
+            for (var i in values)
+                number++;
+            return number;
+        }
     };
 
 })(jQuery);

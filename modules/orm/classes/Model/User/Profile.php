@@ -14,6 +14,7 @@ class Model_User_Profile extends ORM
         'country' => array('type' => 'string'),
         'province' => array('type' => 'string'),
         'city' => array('type' => 'string'),
+        'photowall' => array('type' => 'string'),
     );
 
     /**
@@ -21,5 +22,39 @@ class Model_User_Profile extends ORM
      */
     protected $_db_group = 'default';
 
+    /**
+     * Image fields
+     */
+    protected $_image_fields = array('avatar', 'photowall');
 
+    /**
+     * Update user's profile
+     */
+    public function update_user($values, $expected = NULL)
+    {
+        foreach ($this->_image_fields as $field_name)
+        {
+            $images = JSON::decode($values[$field_name]);
+
+            if (is_array($images))
+            {
+                $images_array = array();
+
+                foreach ($images as $image)
+                {
+                    if (preg_match("/(\/.*([\d]+)\/)tmp\/(.*)/", $image))
+                    {
+                        $images_array[] = Upload::move_tmp_by_url($image);
+                    }
+                    else
+                    {
+                        $images_array[] = $image;
+                    }   
+                }
+
+                $values[$field_name] = JSON::encode($images_array);
+            }
+        }
+	return $this->values($values, $expected)->update();
+    }
 }

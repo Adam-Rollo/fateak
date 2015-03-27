@@ -169,11 +169,11 @@ class Kohana_Form {
 	 *
 	 * @param   string  $name       input name
 	 * @param   array   $attributes html attributes
-         * @param   array   key: default/type(file,image)/crop(true,false)/width/height
+         * @param   array   key: type(file,image)/crop(true,false)/width/height
 	 * @return  string
 	 * @uses    Form::input
 	 */
-	public static function file($name, array $attributes = NULL, $options = array('default' => NULL) )
+	public static function file($name, array $attributes = NULL, $options = array() )
 	{
 		$attributes['type'] = 'file';
 
@@ -188,45 +188,58 @@ class Kohana_Form {
                 {
                         $options['crop'] = isset($options['crop']) ? $options['crop'] : FALSE;
 
+                        $default_value = isset($attributes['value']) ? $attributes['value'] : NULL;
+
+                        if (! isset($attributes['id']))
+                        {
+                            $attributes['id'] = $name;
+                        }
+                        
+                        // New widgets
+                        $upload_button = "<input class='fupload-image' upb='{$name}' type='button' value='" . __('Upload') . "' data-toggle='modal' data-target='.image-modal' />"; 
+                        $image_area = "<div id='preupimage-{$name}' class='preupimage' imgarea='{$name}'></div>";
+                        $hidden_input = Form::hidden($name, $default_value, array('upi' => $name));
+
+                        // Upload URL
+                        $upload_url_query = isset($options['upload_query']) ? ( "?" . $options['upload_query'] ) : ""; 
+                        $upload_url = URL::base() . "upload" . $upload_url_query;
+
+                        // Max number of images
+                        $max_images = isset($options['max_images']) ? $options['max_images'] : 1;
+
+                        $extra_params = array(
+                                "'fid':'{$name}'", 
+                                "'uploadURL':'{$upload_url}'",       
+                                "'maxNum':'{$max_images}'",
+                        );
+
                         if ($options['crop'])
                         {
                                 $options['width'] = isset($options['width']) ? $options['width'] : NULL;
                                 $options['height'] = isset($options['height']) ? $options['height'] : NULL;
 
-                                if (! isset($attributes['id']))
-                                {
-                                        $attributes['id'] = $name;
-                                }
-
-                                $upload_button = "<input class='fupload-image' upb='{$name}' type='button' value='" . __('Upload') . "' data-toggle='modal' data-target='#fup-{$name}' />"; 
-                                $image_area = "<div id='preupimage-{$name}' class='preupimage' imgarea='{$name}'></div>";
-                                $hidden_input = Form::hidden($name, NULL, array('upi' => $name));
-
-                                $upload_url_query = isset($options['upload_query']) ? ( "?" . $options['upload_query'] ) : ""; 
-                                $upload_url = URL::base() . "upload" . $upload_url_query;
                                 $crop_url_query = isset($options['crop_query']) ? ( "?" . $options['crop_query'] ) : ""; 
                                 $crop_url = URL::base() . "upload/crop" . $crop_url_query;
 
-                                $extra_params = array(
-                                    "'fid':'{$name}'", 
-                                    "'uploadURL':'{$upload_url}'",       
-                                    "'cropURL':'{$crop_url}'",
-                                );
+                                $extra_params[] = "'cropURL':'{$crop_url}'";
+                                $extra_params[] = "'crop':true";
+
                                 if (isset($options['aspect_ratio']))
                                 {
                                     $extra_params[] = "'aspectRatio':'" . $options['aspect_ratio'] . "'";
                                 }
-                                $extra_params = implode(',', $extra_params);
-
-                                $script = "<script>"
-                                        . "(function($){"
-                                        . "$(\"input[upb='{$name}']\").FImage({'fid':'{$name}','uploadURL':'" . $upload_url . "',"
-                                        . $extra_params . "});"
-                                        . "})(jQuery);"
-                                        . "</script>";
-
-                                $output = $upload_button . $image_area . $hidden_input . $script;
                         }
+
+                        $extra_params = implode(',', $extra_params);
+
+                        $script = "<script>"
+                                . "(function($){"
+                                . "$(\"input[upb='{$name}']\").FImage({" . $extra_params . "});"
+                                . "})(jQuery);"
+                                . "</script>";
+
+                        $output = $upload_button . $image_area . $hidden_input . $script;
+
 
                 }
 
@@ -288,8 +301,19 @@ class Kohana_Form {
 
 	/**
 	 * Creates a textarea form input.
+         * Rollo - Fateak
+         * You must load these js:
+         *   Assets::add_body_js('ckeditor', 'media/vendor/ckeditor/ckeditor.js', -4);
+         *   Assets::add_body_js('ckeditor-jq', 'media/vendor/ckeditor/adapters/jquery.js', -3);
 	 *
 	 *     echo Form::textarea('about', $about);
+         *
+         * If you use CKEditor width fateak-modal, you need declare this function in your modal initialize.
+         *      var ps = function(){
+         *           for(var instance in CKEDITOR.instances ) { 
+         *               CKEDITOR.instances[instance].updateElement();
+         *           }
+         *       };
 	 *
 	 * @param   string  $name           textarea name
 	 * @param   string  $body           textarea body
@@ -304,10 +328,30 @@ class Kohana_Form {
 		// Set the input name
 		$attributes['name'] = $name;
 
-		// Add default rows and cols attributes (required)
-		$attributes += array('rows' => 10, 'cols' => 50);
+                // If it's a CKEditor
+                if (strstr($attributes['class'], 'ckeditor')) {
+                        // CKE need more rows
+		        $attributes += array('rows' => 60, 'cols' => 50);
+                    
+                        $output = '<textarea'.HTML::attributes($attributes).'>'.HTML::chars($body, $double_encode).'</textarea>';
+                    
+                        $output .= '<script>(function($){$( document ).ready( function() {'
+                            . '$( "textarea.ckeditor" ).ckeditor({'
+                                . '"language":"' . I18n::lang() . '", '
+                                . '"allowedContent": true,'
+                                . '"filebrowserImageUploadUrl":"/upload/image/"'
+                            . '});});})(jQuery);'
+                            . 'if((typeof(ckFillImage)) != "function"){'
+                                . 'function ckFillImage(img){'
+                                    .'jQuery(\'td[style="width:280.00001px"] input\').val("'.URL::base(TRUE).'"+img)'
+                            .'}}</script>';
+                } else {
+		        // Add default rows and cols attributes (required)
+		        $attributes += array('rows' => 10, 'cols' => 50);
+                        $output = '<textarea'.HTML::attributes($attributes).'>'.HTML::chars($body, $double_encode).'</textarea>';
+                }
 
-		return '<textarea'.HTML::attributes($attributes).'>'.HTML::chars($body, $double_encode).'</textarea>';
+		return $output;
 	}
 
 	/**

@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `user_profiles` (
   `country` varchar(63) DEFAULT NULL,
   `province` varchar(63) DEFAULT NULL,
   `city` varchar(63) DEFAULT NULL,
+  `photowall` varchar(1023) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 

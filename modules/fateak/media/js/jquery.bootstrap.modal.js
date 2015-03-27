@@ -11,6 +11,7 @@
         btnWords: {'save':'Save', 'cancel':'Cancel'},
         formURL: window.location.href, 
         success: function(){alert("Operation successfully.")},
+        preSubmit: function(){},
     };
 
     var options = {};
@@ -32,7 +33,7 @@
             + '<h4 class="modal-title" id="myModalLabel">Loading title</h4>'
             + '</div>'
             + '<div class="modal-alert" style="margin:10px 20px 0px 20px"></div>'
-            + '<div class="modal-body ajax-modal-body">'
+            + '<div class="modal-body ajax-modal-body" style="max-height:443px;overflow-y:scroll">'
             + 'Loading data...'
             + '</div>'
             + '<div class="modal-footer">'
@@ -45,7 +46,7 @@
         div.append(modal);
 
         div.find(".fm-save").click(function(){
-            div.find("form").submit();        
+            div.find(".main-form").submit();        
         });
     }
 
@@ -65,6 +66,7 @@
             div.find(".ajax-modal-body").html(result.data.form); 
             div.find(".main-form").on("submit", function(e){
                 e.preventDefault();
+                options.preSubmit();
                 var formData = new FormData(this);
                 $.ajax({
                     type: 'POST',
