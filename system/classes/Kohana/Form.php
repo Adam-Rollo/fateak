@@ -339,11 +339,15 @@ class Kohana_Form {
                             . '$( "textarea.ckeditor" ).ckeditor({'
                                 . '"language":"' . I18n::lang() . '", '
                                 . '"allowedContent": true,'
-                                . '"filebrowserImageUploadUrl":"/upload/image/"'
+                                . '"filebrowserImageUploadUrl":"/upload?path=cke"'
                             . '});});})(jQuery);'
                             . 'if((typeof(ckFillImage)) != "function"){'
                                 . 'function ckFillImage(img){'
-                                    .'jQuery(\'td[style="width:280.00001px"] input\').val("'.URL::base(TRUE).'"+img)'
+                                    . 'jQuery(".cke_dialog_tab_selected").each(function(){
+                                        if ($(this).attr("id").indexOf("info") > 0) { return; }
+                                        var fTabID = jQuery(this).parent().find("a:first").attr("id");
+                                        jQuery("div[aria-labelledby=\'cke_info_"+fTabID.substr(9)+"\']").find("input:first").val("'.URL::base(TRUE).'"+img);
+                                      });'
                             .'}}</script>';
                 } else {
 		        // Add default rows and cols attributes (required)

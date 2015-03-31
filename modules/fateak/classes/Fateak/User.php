@@ -133,4 +133,14 @@ class Fateak_User
         return in_array($role, $this->_roles);
     }
 
+    /**
+     * User file system group
+     */
+    public static function get_group($user_id)
+    {
+        $upload_config = Kohana::$config->load('file');
+
+        return ceil( $user_id / $upload_config['user_number_per_group']);
+    }
+
 }

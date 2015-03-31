@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Only way to upload file
+ *
+ * @author Fateak - Rollo
+ */
 class Controller_Upload extends Controller
 {
     /**
@@ -70,15 +74,14 @@ class Controller_Upload extends Controller
             }
             else
             {
-                $group = ceil( $user_id / $upload_config['user_number_per_group']);
+                $group = User::get_group($user_id);
 
                 $dir = $media_path . DS . 'users' . DS . $group . DS . $user_id . DS . $path;
+            }
 
-                if (! is_dir($dir) )
-                {
-                    System::mkdir($dir);
-                }
-
+            if (! is_dir($dir) )
+            {
+                System::mkdir($dir);
             }
 
             $result[$name] = Assets::path2url(Upload::save($file, null, $dir));
@@ -105,7 +108,13 @@ class Controller_Upload extends Controller
         }
         else
         {
-            $this->response->body(implode(',', $result));
+            if ($this->request->query('CKEditor')) {
+                $output = __('Upload image successfully ! Browse image lab to insert !')
+                    . '<script>parent.ckFillImage("'.implode(',', $result).'");</script>';
+                $this->response->body($output);
+            } else {
+                $this->response->body(implode(',', $result));
+            }
         }
 
     }
