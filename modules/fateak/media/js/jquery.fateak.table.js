@@ -7,7 +7,7 @@
         columns: [],
         rowsPerPage: 10,
         clickablePage: 10,
-        search: {},
+        search: {}
     };
      
     jQuery.fn.FTable = function(opt) {

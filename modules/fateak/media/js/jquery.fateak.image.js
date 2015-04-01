@@ -10,7 +10,7 @@
         cropAreaWidth: 500,
         displayItemWidth: 680,
         cropAbsolutely: 0,
-        maxNum: 1,
+        maxNum: 1
     };
      
     jQuery.fn.FImage = function(opt) {

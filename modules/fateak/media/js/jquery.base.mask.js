@@ -2,7 +2,7 @@
  
     var settings = {
         lid: 'default',
-        opacity: 0,
+        opacity: 0
     };
      
     var options = {};

@@ -83,6 +83,28 @@ CREATE TABLE IF NOT EXISTS `user_tokens` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
+-- Table structure for table `user_files`
+--
+
+CREATE TABLE IF NOT EXISTS `user_files` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  `path` varchar(255) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `updated` int(11) NOT NULL,
+  `privilege` tinyint(4) NOT NULL,
+  `parent_id` int(11) NOT NULL,
+  `lft` int(11) NOT NULL,
+  `rgt` int(11) NOT NULL,
+  `lvl` int(11) NOT NULL,
+  `scope` int(11) NOT NULL,
+  PRIMARY KEY (`id`,`user_id`)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8
+PARTITION BY HASH(user_id)
+PARTITIONS 10;
+
+--
 -- Constraints for dumped tables
 --
 
