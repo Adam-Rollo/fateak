@@ -19,7 +19,7 @@ class Fateak_Letitgo
 
         $query = "";
         foreach ($params as $k => $v) {
-            $query .= "--" . $k . "=" . $v . " ";
+            $query .= "--" . $k . "=" . base64_encode($v) . " ";
         }
 
         $command = "{$php_command} {$tasker} --task={$task} {$query}&";
