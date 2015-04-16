@@ -16,10 +16,18 @@ class Fateak_FTable
     protected $_data;
 
     /**
+     * @var use script
+     */
+    protected $_is_script;
+
+    /**
      * load data from database and $_GET
      */
-    public function __construct(Model $model, $params, $options = array('fuzzy' => TRUE))
+    public function __construct(Model $model, $params, $options = array('fuzzy' => TRUE, 'script' => FALSE))
     {
+        $this->_is_script = isset($options['script']) ? $options['script'] : FALSE;
+
+
         $offset = ($params['page'] - 1) * $params['rowsPerPage'];
         if ($params['keyword'])
         {
@@ -35,14 +43,21 @@ class Fateak_FTable
         }
         $this->_total_numbers = $model->reset(FALSE)->count_all();
 
-        if ($params['sort'])
+        if ($this->_is_script)
         {
-            $model->order_by($params['sort'], $params['order']);
+            $this->_data = $model->load_ftable_script($params, $options['script_columns']);
         }
+        else
+        {
+            if ($params['sort'])
+            {
+                $model->order_by($params['sort'], $params['order']);
+            }
 
-        $this->_data = $model->offset($offset)
-            ->limit($params['rowsPerPage'])
-            ->find_all();
+            $this->_data = $model->offset($offset)
+                ->limit($params['rowsPerPage'])
+                ->find_all();
+        }
     }
 
     /**
@@ -73,10 +88,24 @@ class Fateak_FTable
 
             foreach ($properties as $property)
             {
-                $row[$property] = $model->$property->find_all()->as_array();
+                if ($this->_is_script)
+                {
+                    $row[$property] = JSON::decode($model[$property]);
+                }
+                else
+                {
+                    $row[$property] = $model->$property->find_all()->as_array();
+                }
             }
 
-            $row = array_merge($model->as_array(), $row);
+            if (is_array($model))
+            {
+                $row = array_merge($model, $row);
+            }
+            else
+            {
+                $row = array_merge($model->as_array(), $row);
+            }
 
             foreach ($btns as $bn => $btn)
             {

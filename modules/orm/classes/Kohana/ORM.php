@@ -2355,4 +2355,58 @@ class Kohana_ORM extends Model implements serializable {
 
 		return ( ! $model->loaded());
 	}
+
+        /**
+         * Load script
+         * Working with FTable
+         * 
+         * @author Fateak - Rollo
+         */
+        public function load_ftable_script($params, $columns)
+        {
+                $result = array();
+                $function = "get_" . strtolower($this->_table_name); 
+
+                $offset = ($params['page'] - 1) * $params['rowsPerPage'];
+
+                if (isset($params['keywords']))
+                {
+                        $keytype = "'" . mysql_real_escape_string($params['keytype']) . "'";
+                        $keywords = "'" . mysql_real_escape_string($params['keywords']) . "'";
+                        $fuzzy = $param['fuzzy'] ? '1' : '0';
+                }
+                else
+                {
+                        $keytype = $keywords = "''";
+                        $fuzzy = "'0'";
+                }
+
+                if (isset($params['sort']))
+                {
+                    $sort = $params['sort'];
+                    $order = $params['order'];
+                }
+                else
+                {
+                    $sort = $order = "''";
+                }
+
+
+                $rows =  $this->_db->query(Database::SELECT, "call {$function}({$offset},{$params['rowsPerPage']},'{$sort}','{$order}',{$keytype},{$keywords},{$fuzzy})");
+
+                foreach ($rows as $row)
+                {
+                    $result_row = array();
+                    $i = 0;
+                    foreach ($row as $item)
+                    {
+                        $result_row[$columns[$i]] = $item;
+                        $i++;
+                    }
+                    $result[] = $result_row;
+                }
+
+                return $result;
+        }
+
 } // End ORM
