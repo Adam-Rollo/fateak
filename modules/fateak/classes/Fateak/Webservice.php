@@ -36,7 +36,7 @@ abstract class Fateak_Webservice {
             }
 
             $result = $api_object->$api_function($params);
-            $wr = new Webservice_Result(Webservice_Result::SUCCESS, $result, $params); 
+            $wr = new Webservice_Result(Webservice_Result::SUCCESS, $result); 
 
         } 
         catch (Webservice_Exception $e) 
@@ -44,7 +44,7 @@ abstract class Fateak_Webservice {
             $error = $e->getMessage();
             $wr = new Webservice_Result(Webservice_Result::FAILURE, $error, $params); 
         } 
-        catch (Kohana_Exception $e) 
+        catch (Exception $e) 
         {
             $error = $e->getMessage();
             $wr = new Webservice_Result(Webservice_Result::FAILURE, $error);
@@ -64,6 +64,17 @@ abstract class Fateak_Webservice {
                 throw new Webservice_Exception('You must delivery param :param !', array(':param' => $arg));
             }
         }
+    }
+
+    public function rsa_decode($encrypted)
+    {
+        $webservice_config = Kohana::$config->load('webservice');
+
+        $decrypted = "";
+
+        openssl_private_decrypt(base64_decode($encrypted), $decrypted, $webservice_config['rsa_private_key']);
+
+        return $decrypted;
     }
 
 }

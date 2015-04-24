@@ -117,6 +117,68 @@ class Kohana_Auth_ORM extends Auth {
 		return FALSE;
 	}
 
+        /**
+         * Fateak - Rollo
+         * Login from APP
+         * Token contains: email, telephone, login time, device, ip, token.
+         */
+	protected function _login_by_app($user, $password)
+        {
+                if ( ! is_object($user))
+		{
+			$username = $user;
+
+			// Load the user
+			$user = ORM::factory('User');
+			$user->where($user->unique_key($username), '=', $username)->find();
+		}
+
+		if (is_string($password))
+		{
+			// Create a hashed password
+			$password = $this->hash($password);
+		}
+
+		// If the passwords match, perform a login
+		if ($user->has('roles', ORM::factory('Role', array('name' => 'login'))) AND $user->password === $password)
+		{
+                        // Load User Login info
+                        $redis = FRedis::instance();
+                        $token_key = "auth:token:" . $user->id;
+                        $token_text = $redis->hget($token_key, 'token');
+
+                        if ($token_text != FALSE)
+                        {
+                            $invalid_key = "token:invalid:" . $user->id;
+                            $redis->sadd($invalid_key, $token_text);
+                        }
+
+                        $new_token = sha1(uniqid(mt_rand(), TRUE)) . md5(uniqid(mt_rand(), TRUE));
+
+                        $user_information = array(
+                                'id' => $user->id,
+                                'email' => $user->email, 
+                                'telephone' => $user->username,
+                                'login_tile' => time(),
+                                'device' => Request::$user_agent,
+                                'ip' => Request::$client_ip,
+                                'token' => $new_token,
+                        );
+
+                        $redis->hMset($token_key, $user_information);
+
+
+			// Finish the login
+		        $user->complete_login();
+
+			return $user_information;
+		}
+
+		// Login failed
+		return FALSE;
+
+        }
+
 	/**
 	 * Forces a user to be logged in, without specifying a password.
 	 *

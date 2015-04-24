@@ -93,6 +93,22 @@ abstract class Kohana_Auth {
 	}
 
 	/**
+	 * Attempt to log in a user by using an ORM object and plain-text password from APP.
+	 *
+	 * @param   string   $username  Username to log in
+	 * @param   string   $password  Password to check against
+	 * @param   boolean  $remember  Enable autologin
+	 * @return  boolean
+	 */
+	public function login_by_app($username, $password)
+	{
+		if (empty($password))
+			return FALSE;
+
+		return $this->_login_by_app($username, $password);
+	}
+
+	/**
 	 * Log out a user by removing the related session variables.
 	 *
 	 * @param   boolean  $destroy     Completely destroy the session

@@ -31,4 +31,13 @@ if ( ! Route::cache()) {
         )            
     );
 
+    Route::set('webservice/api', 'api/<class>/<function>', array(
+        'class'     => '\w+',
+        'function'  => '\w+',           
+    ))
+    ->defaults(array(
+        'controller' => 'webservice',
+        'action'     => 'index',       
+    ));
+
 }
