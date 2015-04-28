@@ -28,6 +28,38 @@ class Gleez_Email {
 		return new Email($exceptions);
 	}
 
+        /**
+         * Fateak - Rollo
+         * Send Email
+         * Email Queue: 1) queue:confirmation.email 2) queue:notification:email
+         * Queue switch: queue:email:switch
+         */
+        public static function send_email($toEmail, $title, $tpl, $params = array(), $queue_type = 'confirmation')
+        {
+            $config = Kohana::$config->load('email');
+
+            $queue = $config['email_queue'];
+
+            $content_array = array('title' => $title, 'email' => $toEmail, 'tpl' => $tpl, 'vars' => JSON::encode($params));
+
+            if ($queue)
+            {
+                $redis = FRedis::instance();
+
+                array_walk($content_array, function(& $v, $k){
+                    $v = base64_encode($v);
+                });
+
+                $key = "queue:" . $queue_type . ".email";
+
+                $redis->lpush($key, serialize($content_array));
+            }
+            else
+            {
+                Letitgo::execute('Email', $content_array);
+            }
+        }
+
 	/**
 	 * Class constructor
 	 *
@@ -41,10 +73,10 @@ class Gleez_Email {
 		$this->_mail = new PHPMailer($exceptions);
 
                 // Load configuration
-                $site_config = Kohana::$config->load('site');
+                $site_config = Kohana::$config->load('email');
 
 		// Set some defaults
-		$this->_mail->setFrom($site_config['site_email'], $site_config['site_name']);
+		$this->_mail->setFrom($site_config['site_email'], $site_config['email_site_name']);
 		$this->_mail->WordWrap = 70;
 		$this->_mail->CharSet  = Kohana::$charset;
 		$this->_mail->XMailer  = Kohana::version(FALSE, TRUE);
@@ -59,7 +91,7 @@ class Gleez_Email {
                 $this->_mail->Host = $site_config['email_host'];
                 $this->_mail->Username = $site_config['site_email'];
                 $this->_mail->Password = $site_config['email_pass'];
-                $this->_mail->FromName = $site_config['site_name'];
+                $this->_mail->FromName = $site_config['email_site_name'];
 	}
 
 	/**

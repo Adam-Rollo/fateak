@@ -66,6 +66,20 @@ abstract class Fateak_Webservice {
         }
     }
 
+    public function frequency($duration, $times)
+    {
+        $redis = FRedis::instance();
+
+        $result = $redis->lua('limitip', array(Request::$client_ip, $duration, $times, time()), 1);
+
+        if ($result == 'N')
+        {
+            throw new Webservice_Exception('You send request too frequently.');
+        }
+
+        return true;
+    }
+
     public function rsa_decode($encrypted)
     {
         $webservice_config = Kohana::$config->load('webservice');

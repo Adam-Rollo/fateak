@@ -339,7 +339,7 @@ class Gleez_Menu {
 			// set the cache for performance in production
 			if (Kohana::$environment === Kohana::PRODUCTION)
 			{
-				$cache->set($cache_key, $items, DATE::DAY);
+				$cache->set($cache_key, $items, Date::DAY);
 			}
 		}
 
@@ -435,7 +435,7 @@ class Gleez_Menu {
 			// set the cache for performance in production
 			if (Kohana::$environment === Kohana::PRODUCTION)
 			{
-				$cache->set($name, $items, DATE::DAY);
+				$cache->set($name, $items, Date::DAY);
 			}
 		}
 

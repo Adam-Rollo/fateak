@@ -53,6 +53,15 @@ class Kohana_Log {
 		return Log::$_instance;
 	}
 
+        /**
+         * Fateak - Rollo
+         */
+        public static function debug($message)
+        {
+            $log = self::instance();
+            $log->add(self::DEBUG, $message);
+        }
+
 	/**
 	 * @var  array  list of added messages
 	 */

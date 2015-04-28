@@ -47,4 +47,31 @@ class Webservice_App_Auth extends Webservice_App
 
         return $result;
     }
+
+    /**
+     * User Register
+     */
+    public function send_code($params)
+    {
+        $this->frequency(30, 3);
+
+        $this->check_params($params, 'account');
+
+        $account = trim($params['account']);
+
+        if (preg_match('/^[0-9]+$/', $account))
+        {
+            if (strlen($account) <> 11)
+            {
+                throw new Webservice_Exception('Wrong telephone number format.');
+            }
+
+            // Do send message
+            return "telephone";
+        }
+        else
+        {
+            return "email";
+        }
+    }
 }

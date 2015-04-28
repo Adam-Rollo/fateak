@@ -38,10 +38,4 @@ return array
      */
     'server_iconv' => 'UTF-8',
 
-    /**
-     * Site EMail address and other configurations
-     */
-    'email_host' => 'smtp.163.com',
-    'site_email' => 'hejiao_xtu@163.com',
-    'email_pass' => '517611141hejiao',
 );
