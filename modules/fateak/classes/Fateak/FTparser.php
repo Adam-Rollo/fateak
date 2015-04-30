@@ -14,11 +14,18 @@ class Fateak_FTparser
 
     protected $relative_path = null;
 
-    public function __construct($str, $path = false)
+    public function __construct($str, $path = false, $lang = null)
     {
         if ($path)
         {
             $this->relative_path = $path . '/' . $str;
+
+            if (is_null($lang))
+            {
+                $lang = I18n::$lang;
+            }
+
+            $str .= "_" . strtolower(substr($lang, 0, 2)); 
 
             if ($path === true)
             {
@@ -29,7 +36,6 @@ class Fateak_FTparser
                 $path = trim(str_replace('/', DS, $path), DS);
                 $path = 'templates' . DS . $path;
             }
-
 
             $template_path = Kohana::find_file($path, $str, 'html');
 

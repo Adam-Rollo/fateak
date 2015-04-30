@@ -9,6 +9,7 @@ class Task_Email extends Minion_Task
         'body' => '',
         'tpl' => null,
         'vars' => null,
+        'lang' => null,
     );
 
     protected function _execute(array $params)
@@ -17,7 +18,13 @@ class Task_Email extends Minion_Task
         {
             if (! is_null($params['tpl']))
             {
-                $parser = new FTparser(base64_decode($params['tpl']), 'email');
+                if (is_null($params['lang']))
+                {
+                    $task_config = Kohana::$config->load('task');
+                    $params['lang'] = $task_config['default_lang'];
+                }
+
+                $parser = new FTparser(base64_decode($params['tpl']), 'email', $params['lang']);
                 
                 if (! is_null($params['vars']))
                 {

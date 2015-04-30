@@ -59,6 +59,8 @@ class Webservice_App_Auth extends Webservice_App
 
         $account = trim($params['account']);
 
+        $random_code = Text::random('numeric', 6); 
+
         if (preg_match('/^[0-9]+$/', $account))
         {
             if (strlen($account) <> 11)
@@ -71,6 +73,18 @@ class Webservice_App_Auth extends Webservice_App
         }
         else
         {
+            $redis = FRedis::instance();
+
+            $account_key = "account:vcode:" . $account;
+
+            $redis->set($account_key, $random_code);
+
+            $email_config = Kohana::$config->load('email');
+            
+            $vars = array('code' => $random_code, 'site_name' => $email_config['email_site_name']);
+
+            Email::send_email($account, __('Please check your validation code.'), 'sendcode', $vars);
+ 
             return "email";
         }
     }

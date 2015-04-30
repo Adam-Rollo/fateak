@@ -3,12 +3,19 @@
 class Task_Emails extends Minion_Task
 {
     protected $_options = array(
+        'lang' => null,
     );
 
     protected function _execute(array $params)
     {
         try
         {
+            if (is_null($params['lang']))
+            {
+                $task_config = Kohana::$config->load('task');
+                $params['lang'] = $task_config['default_lang'];
+            }
+
             $redis = FRedis::instance();
 
             $switch = $redis->get('queue:email:switch'); 
@@ -23,7 +30,7 @@ class Task_Emails extends Minion_Task
 
                 $vars = JSON::decode(base64_decode($email_array['vars']));
 
-                $parser = new FTparser(base64_decode($email_array['tpl']), 'email');
+                $parser = new FTparser(base64_decode($email_array['tpl']), 'email', $params['lang']);
                 $body = $parser->parse($vars); 
 
                 $email = Email::factory()
