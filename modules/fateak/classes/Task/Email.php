@@ -10,6 +10,7 @@ class Task_Email extends Minion_Task
         'tpl' => null,
         'vars' => null,
         'lang' => null,
+        'refresh' => 'N',
     );
 
     protected function _execute(array $params)
@@ -24,7 +25,7 @@ class Task_Email extends Minion_Task
                     $params['lang'] = $task_config['default_lang'];
                 }
 
-                $parser = new FTparser(base64_decode($params['tpl']), 'email', $params['lang']);
+                $parser = new FTparser(base64_decode($params['tpl']), 'email', base64_decode($params['lang']));
                 
                 if (! is_null($params['vars']))
                 {
@@ -36,7 +37,9 @@ class Task_Email extends Minion_Task
                     $vars = array();
                 }
 
-                $body = $parser->parse($vars); 
+                $refresh = base64_decode($params['refresh']) == 'Y' ? true : false;
+
+                $body = $parser->parse($vars, $refresh); 
             }
             else
             {

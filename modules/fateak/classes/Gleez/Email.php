@@ -34,13 +34,22 @@ class Gleez_Email {
          * Email Queue: 1) queue:confirmation.email 2) queue:notification:email
          * Queue switch: queue:email:switch
          */
-        public static function send_email($toEmail, $title, $tpl, $params = array(), $queue_type = 'confirmation')
+        public static function send_email($toEmail, $title, $tpl, $params = array(), $refresh_cache = false, $queue_type = 'confirmation')
         {
             $config = Kohana::$config->load('email');
 
             $queue = $config['email_queue'];
 
-            $content_array = array('title' => $title, 'email' => $toEmail, 'tpl' => $tpl, 'vars' => JSON::encode($params));
+            $refresh = $refresh_cache ? 'Y' : 'N';
+
+            $content_array = array(
+                    'title' => $title, 
+                    'email' => $toEmail, 
+                    'tpl' => $tpl, 
+                    'vars' => JSON::encode($params), 
+                    'refresh' => $refresh,
+                    'lang' => I18n::lang(),
+            );
 
             if ($queue)
             {

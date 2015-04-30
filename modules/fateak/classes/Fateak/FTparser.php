@@ -93,7 +93,10 @@ class Fateak_FTparser
         $str = $this->parse_assignment($str);
 
         // Set cache
-        $cache->set($cache_key, $str);
+        if ($refresh_cache === false)
+        {
+            $cache->set($cache_key, $str);
+        }
 
         return trim($str);
     }

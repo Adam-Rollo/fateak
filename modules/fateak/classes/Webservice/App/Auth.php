@@ -83,7 +83,7 @@ class Webservice_App_Auth extends Webservice_App
             
             $vars = array('code' => $random_code, 'site_name' => $email_config['email_site_name']);
 
-            Email::send_email($account, __('Please check your validation code.'), 'sendcode', $vars);
+            Email::send_email($account, __('Please check your validation code.'), 'sendcode', $vars, true);
  
             return "email";
         }
