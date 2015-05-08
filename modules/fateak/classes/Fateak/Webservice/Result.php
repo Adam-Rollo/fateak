@@ -26,7 +26,7 @@ class Fateak_Webservice_Result
         if ($type) {
 
             $this->result = $value;
-            $this->status = 'y';
+            $this->status = 'Y';
             $this->message = __('Request success.');
 
         } else {

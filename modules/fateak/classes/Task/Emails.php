@@ -17,21 +17,28 @@ class Task_Emails extends Minion_Task
             {
                 $email_content = $redis->brPop('queue:confirmation.email', 'queue:notification.email', 0); 
 
-                $email_array = unserialize($email_content[1]);
+                try
+                {
+                    $email_array = unserialize($email_content[1]);
 
-                $vars = JSON::decode(base64_decode($email_array['vars']));
+                    $vars = JSON::decode(base64_decode($email_array['vars']));
 
-                $parser = new FTparser(base64_decode($email_array['tpl']), 'email', base64_decode($email_array['lang']));
+                    $parser = new FTparser(base64_decode($email_array['tpl']), 'email', base64_decode($email_array['lang']));
 
-                $refresh = base64_decode($email_array['refresh']) == 'Y' ? true : false;
-                $body = $parser->parse($vars, $refresh); 
+                    $refresh = base64_decode($email_array['refresh']) == 'Y' ? true : false;
+                    $body = $parser->parse($vars, $refresh); 
 
-                $email = Email::factory()
-                    ->subject(base64_decode($email_array['title']))
-                    ->to(base64_decode($email_array['email']))
-                    ->message($body);
+                    $email = Email::factory()
+                        ->subject(base64_decode($email_array['title']))
+                        ->to(base64_decode($email_array['email']))
+                        ->message($body);
 
-                $email->send();
+                    $email->send();
+                }
+                catch (Exception $e)
+                {
+                    // Do something
+                }
             }
 
         }

@@ -166,7 +166,18 @@ class Model_Auth_User extends ORM {
 		$extra_validation = Model_User::get_password_validation($values)
 			->rule('password', 'not_empty');
 
-		return $this->values($values, $expected)->create($extra_validation);
+		$result = $this->values($values, $expected)->create($extra_validation);
+
+                $return = array( 'errors' => array(), 'uid' => $result->pk());
+                Module::action('create_user', $return);
+
+                if (! empty($return['errors']))
+                {
+                    $message = implode(', ', $return['errors']);
+                    throw new Kohana_Exception($message);
+                }
+
+                return $result;
 	}
 
 	/**

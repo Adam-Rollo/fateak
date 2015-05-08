@@ -70,7 +70,9 @@ abstract class Fateak_Webservice {
     {
         $redis = FRedis::instance();
 
-        $result = $redis->lua('limitip', array(Request::$client_ip, $duration, $times, time()), 1);
+        $key = Request::current()->action() . '.' . Request::$client_ip;
+
+        $result = $redis->lua('limitip', array($key, $duration, $times, time()), 1);
 
         if ($result == 'N')
         {
