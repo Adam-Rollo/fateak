@@ -10,5 +10,6 @@ class Webservice_App_Profile extends Webservice_App
         $this->frequency(30, 3);
 
         $this->check_params($params, 'account');
+
     }
 }

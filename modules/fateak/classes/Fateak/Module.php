@@ -33,17 +33,23 @@ class Fateak_Module
         foreach (Kohana::modules() as $name => $module)
         {
             $class = ucfirst($name).'_Action';
+            $class_upper = strtoupper($name) . '_Action'; 
             $args = $filterargs;
             array_unshift($args, $return);
 
-            if (is_callable(array($class, $function)))
+            try
             {
-                try
+                if (is_callable(array($class, $function)))
                 {
                     $return = call_user_func_array(array($class, $function), $args);
                 }
-                catch(Exception $e){}
+                else if (is_callable(array($class_upper, $function)))
+                {
+                    $return = call_user_func_array(array($class_upper, $function), $args);
+                }
             }
+            catch(Exception $e){}
+
         }
 
         return $return;

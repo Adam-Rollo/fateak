@@ -1,6 +1,6 @@
 <?php
 
-class Fateak_Orm_Action
+class Fateak_ORM_Action
 {
     public static function create_user($return)
     {
