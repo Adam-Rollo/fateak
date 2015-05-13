@@ -9,7 +9,12 @@ class Webservice_App_Profile extends Webservice_App
     {
         $this->frequency(30, 3);
 
-        $this->check_params($params, 'account');
+        $this->check_params($params, 'uid', 'token');
+        
+        $profile = ORM::factory('User_Profile', $params['uid'])->as_array();
 
+        Module::action('api_get_profiles', $profile);
+
+        return $profile;
     }
 }
