@@ -93,5 +93,22 @@ abstract class Fateak_Webservice {
         return $decrypted;
     }
 
-}
+    public function token_auth($user_id, $token, $agent_filter = true)
+    {
+        $redis = FRedis::instance();
+        $token_key = "auth:token:" . $user_id;
 
+        $user_info = $redis->hMGet($token_key, array('device', 'ip', 'token'));
+
+        if ($token != $user_info['token'])
+        {
+            throw new Webservice_Exception('Token is invalid.');
+        }
+
+        if ($agent_filter && (Request::$client_ip != $user_info['ip'] || Request::$user_agent != $user_info['device']))
+        {
+            throw new Webservice_Exception('invalid Environment.');
+        }
+    }
+
+}

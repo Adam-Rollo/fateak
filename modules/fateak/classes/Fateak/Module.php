@@ -18,7 +18,7 @@ class Fateak_Module
      * @param string The name of the action to execute
      * @param mixed The value to action.
      */
-    public static function action($action, $return = array())
+    public static function action($action, & $return = array())
     {
         $oringial_args = func_get_args();
         if (count($oringial_args) == 1)

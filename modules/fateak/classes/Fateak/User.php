@@ -143,4 +143,14 @@ class Fateak_User
         return ceil( $user_id / $upload_config['user_number_per_group']);
     }
 
+    /**
+     * Set current user for app/api
+     */
+    public static function set_user($user_id, $extra_info = array())
+    {
+        $user = ORM::factory("User", $user_id);
+        self::$_current_user = new User(array('base' => $user), $extra_info);
+        self::$_current_user->_permissions = ACL::get_user_permissions($user);
+    }
+
 }

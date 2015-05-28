@@ -63,7 +63,7 @@ class Webservice_App_Auth extends Webservice_App
      */
     public function send_code($params)
     {
-        $this->frequency(30, 3);
+        $this->frequency(3600, 10);
 
         $this->check_params($params, 'account');
 

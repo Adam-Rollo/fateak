@@ -25,4 +25,8 @@ return array
     'Wrong telephone number format.' => '错误的手机号码格式',
 
     'This account is not exist.' => '该账户并不存在',
+
+    'Token is invalid.' => '用户证书不可用',
+
+    'invalid Environment.' => '登录环境发生变化，请重新登录',
 );

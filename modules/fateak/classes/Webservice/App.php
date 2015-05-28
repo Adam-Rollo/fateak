@@ -7,5 +7,11 @@
  */
 class Webservice_App extends Webservice
 {
-
+    /**
+     * 得到用户权限
+     */
+    protected function get_permissions($user_id)
+    {
+        User::set_user($user_id);
+    } 
 }
