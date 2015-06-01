@@ -29,4 +29,6 @@ return array
     'Token is invalid.' => '用户证书不可用',
 
     'invalid Environment.' => '登录环境发生变化，请重新登录',
+
+    'Original password is wrong.' => '原始密码错误',
 );

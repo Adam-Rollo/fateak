@@ -109,7 +109,7 @@ class Fateak_FTable
 
             foreach ($btns as $bn => $btn)
             {
-                preg_match_all('/\[:([a-zA-Z0-9]+):\]/', $btn, $matches);
+                preg_match_all('/\[:([a-zA-Z0-9_]+):\]/', $btn, $matches);
 
                 foreach ($matches[1] as $k => $column)
                 {

@@ -7,7 +7,7 @@ class Webservice_App_Profile extends Webservice_App
      */ 
     public function get_profiles($params)
     {
-        $this->frequency(30, 3);
+        $this->frequency(30, 10);
 
         $this->check_params($params, 'uid', 'token');
 
@@ -25,7 +25,7 @@ class Webservice_App_Profile extends Webservice_App
      */
     public function avatar($params)
     {
-        $this->frequency(30, 3);
+        $this->frequency(30, 10);
 
         $this->token_auth($params['uid'], $params['token'], false);
 

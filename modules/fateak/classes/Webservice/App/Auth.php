@@ -112,8 +112,6 @@ class Webservice_App_Auth extends Webservice_App
         $info_array = JSON::decode($this->rsa_decode($params['info']));
         $pass_array = JSON::decode($this->rsa_decode($params['data']));
 
-        $auth = Auth::instance();
-
         $this->_check_password($pass_array);
 
         $this->frequency(30, 2);
@@ -198,6 +196,51 @@ class Webservice_App_Auth extends Webservice_App
                 $errors = implode(', ', $e->errors('models', TRUE));
                 throw new Webservice_Exception($errors);
             }
+        }
+
+    }
+
+    /**
+     * 修改密码
+     */
+    public function change($params)
+    {
+        $this->check_params($params, 'data', 'uid', 'token');
+
+        $pass_array = JSON::decode($this->rsa_decode($params['data']));
+
+        $original_password = $pass_array['ori'];
+        $new_password = $pass_array['new'];
+        $pass_array = array('password' => $new_password, 'password_confirm' => $new_password);
+
+        $this->_check_password($pass_array);
+
+        $this->frequency(60, 2);
+
+        $user = ORM::factory('User', $params['uid']);
+        
+        if (! $user->loaded())
+        {
+            throw new Webservice_Exception('This account is not exist.');
+        }
+
+        $auth = Auth::instance();
+
+        if ($user->password == $auth->hash($original_password))
+        {
+           try
+            {
+                $user->update_user($pass_array);
+            } 
+            catch (ORM_Validation_Exception $e) 
+            {
+                $errors = implode(', ', $e->errors('models', TRUE));
+                throw new Webservice_Exception($errors);
+            }
+        }
+        else
+        {
+            throw new Webservice_Exception('Original password is wrong.');
         }
 
     }

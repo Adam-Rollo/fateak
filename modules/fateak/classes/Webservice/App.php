@@ -14,4 +14,25 @@ class Webservice_App extends Webservice
     {
         User::set_user($user_id);
     } 
+
+    /**
+     * Get HTML
+     */
+    public function html($params)
+    {
+        $this->check_params($params, 'url');
+
+        if (strstr($params['url'], 'http'))
+        {
+            $content = CURL::get($params['url']);
+        }
+        else
+        {
+            $url = URL::base() . trim($params['url'], '/');
+            $content = CURL::get($url);
+        }
+
+        return $content;
+
+    }
 }
