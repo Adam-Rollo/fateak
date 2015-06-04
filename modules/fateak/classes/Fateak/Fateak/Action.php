@@ -14,7 +14,7 @@ class Fateak_Fateak_Action
         } 
         catch (Exception $e)
         {
-            echo $e->getLine . " " . $e->getMessage();    
+            // echo $e->getLine() . " " . $e->getMessage();    
         }
     }
 

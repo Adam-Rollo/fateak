@@ -73,9 +73,9 @@ class Fateak_FTable
      * @param btns: Button with placeholder
      * @param properties: process relationship: has_many
      */
-    public function data($btns = array(), $properties = array())
+    public function data($btns = array(), $properties = array(), $scripts = array())
     {
-        if (empty($btns) && empty($properties))
+        if (empty($btns) && empty($properties) && empty($script))
         {
             return $this->_data->as_array();
         }
@@ -119,6 +119,31 @@ class Fateak_FTable
                         $row[$bn] = $btn;
                     }
                 }
+            }
+
+            foreach ($scripts as $scolumn => $script_group)
+            {
+                if (is_array($script_group['function']))
+                {
+                    $script_class = $script_group['function']['object'];
+                    $script_function = $script_group['function']['method'];
+                }
+                else
+                {
+                    list($script_class, $script_function) = explode('::', $script_group['function']);
+                }
+
+                $script_args = (isset($script_group['params']) && ! empty($script_group['params'])) ? $script_group['params'] : array();
+
+                foreach ($script_args as $arg_name => $script_arg)
+                {
+                    if (preg_match('/\[:([a-zA-Z0-9_]+):\]/', $script_arg, $matches))
+                    {
+                        $script_args[$arg_name] = str_replace($matches[0], $row[$matches[1]], $script_arg);
+                    }
+                }
+
+                $row[$scolumn] = call_user_func_array(array($script_class, $script_function), $script_args);
             }
 
             $result[] = $row;

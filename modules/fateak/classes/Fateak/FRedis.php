@@ -94,4 +94,19 @@ class Fateak_FRedis extends Redis
 
         return $this->eval($script, $params, $keys_num);
     }
+
+    /**
+     * Convert hMGet to common array
+     */
+    public static function hm_array($array)
+    {
+        $result = array();
+
+        for ($i = 0; $i < count($array); $i = $i + 2)
+        {
+            $result[$array[$i]]  = $result[$array[$i+1]];   
+        }
+
+        return $result;
+    }
 }

@@ -48,7 +48,10 @@ class Fateak_Module
                     $return = call_user_func_array(array($class_upper, $function), $args);
                 }
             }
-            catch(Exception $e){}
+            catch(Exception $e)
+            {
+                Log::debug($e->getMessage() . " - " . $e->getLine() . " IN " . $e->getFile());    
+            }
 
         }
 

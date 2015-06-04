@@ -8,7 +8,7 @@
  * @copyright  (c) 2011-2014 Gleez Technologies
  * @license    http://gleezcms.org/license  Gleez CMS License
  */
-class Cleez_Pagination {
+class Gleez_Pagination {
 
 	/** Merged configuration settings
 	 * @var array
