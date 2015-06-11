@@ -56,6 +56,8 @@ class Webservice_App extends Webservice
 
             $redis->zAdd("toapp:" . $model->object_name() . ":queue:" . $user_id, time(), $random_salt);
 
+            Log::debug($random_key);
+
             $redis->hMSet($random_key, array('id' => $model->id, 'column' => $column, 'value' => $model->$column));
         }
     }
@@ -68,10 +70,10 @@ class Webservice_App extends Webservice
         $redis = FRedis::instance();
 
         $changes = $redis->zRangeByScore("toapp:{$table}:queue:" . $user_id , $timestamp, time());
-
+        
         foreach ($changes as $k => $change)
         {
-            $changes[$k] = $redis->hMGet("toapp:customer:change:" . $change, array('id', 'column', 'value'));
+            $changes[$k] = $redis->hMGet("toapp:{$table}:change:" . $change, array('id', 'column', 'value'));
         }
 
         return $changes;

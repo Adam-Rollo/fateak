@@ -1405,6 +1405,11 @@ class Kohana_ORM extends Model implements serializable {
 			$this->_primary_key_value = $data[$this->_primary_key];
 		}
 
+                // Code modified by Fateak Rollo: Next Block
+                $action_errors = array();
+                Module::action($this->_object_name . '_save', $action_errors, $this);
+                if (! empty($action_errors)) Log::debug(implode(PHP_EOL, $action_errors));
+
 		// Object has been saved
 		$this->_saved = TRUE;
 
