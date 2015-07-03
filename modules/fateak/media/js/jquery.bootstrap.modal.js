@@ -8,7 +8,7 @@
     var formSettings = {
         width: '600px',
         params: {},
-        btnWords: {'save':'Save', 'cancel':'Cancel'},
+        btnWords: {'save':'Save', 'cancel':'Cancel', 'loading':'Loading'},
         formURL: window.location.href, 
         success: function(){alert("Operation successfully.")},
         preSubmit: function(){}
@@ -53,6 +53,7 @@
     // Append modal to a exist div.
     jQuery.fn.FForm = function(opt) {
         options = mergeObjects(formSettings, opt);
+        this.find('.ajax-modal-body').html(options['btnWords']['loading'] + '...');
         initForm(this);
         return this;
     };

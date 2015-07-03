@@ -130,7 +130,7 @@ class Fateak_User
      */
     public function is_role($role)
     {
-        return in_array($role, $this->_roles);
+        return in_array($role, $this->_roles) || ($this->_base_info->id == self::ADMIN_ID);
     }
 
     /**

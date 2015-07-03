@@ -22,9 +22,9 @@ abstract class Controller_Admin extends Controller_Template
         $controller = strtolower($this->request->controller());
         $action = $this->request->action();
 
-        if ($action === 'login')
+        if (! $this->logined_page($action))
         {
-            $this->template = 'layout/login';
+            $this->template = 'layout/' . $action;
         }
         else
         {
@@ -48,7 +48,7 @@ abstract class Controller_Admin extends Controller_Template
 
         // ACL
         $user = User::active_user(array());
-        if ($action !== 'login')
+        if ($this->logined_page($action))
         {
             if (is_null($user))
             {
@@ -91,11 +91,18 @@ abstract class Controller_Admin extends Controller_Template
     {
         $controller = $this->request->controller();
 
-	// Sign out the user
-	Auth::instance()->logout();
+	    // Sign out the user
+	    Auth::instance()->logout();
 
-	// Redirect to the user account and then the signin page if logout worked as expected
+	    // Redirect to the user account and then the signin page if logout worked as expected
         HTTP::redirect(strtolower($controller).'/login');
+    }
+
+    protected function logined_page($action)
+    {
+        $logined_pages_array = array('login', 'register');
+
+        return in_array($action, $logined_pages_array) ? false : true;
     }
 
 }

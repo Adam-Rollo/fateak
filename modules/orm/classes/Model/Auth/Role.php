@@ -9,6 +9,11 @@
  */
 class Model_Auth_Role extends ORM {
 
+    /**
+     * Permission DB
+     */
+    static public $_permission_db = null;
+
 	// Relationships
 	protected $_has_many = array(
 		'users' => array('model' => 'User','through' => 'roles_users'),
@@ -27,5 +32,62 @@ class Model_Auth_Role extends ORM {
 			)
 		);
 	}
+
+    /**
+     * Get Permissions
+     */
+     public function permissions($rid = NULL)
+     {
+        if (is_null($rid))
+        {
+            $rid = $this->id;
+        }
+
+        $permissions = DB::select('permission')
+            ->from('permissions')
+            ->where('rid', '=', $rid)
+            ->execute(self::$_permission_db)
+            ->as_array();
+
+        return $permissions;
+     }
+
+     /**
+      * Set Permissions
+      */
+     public function update_permissions($permissions, $rid = NULL)
+     {
+        if (is_null($rid))
+        {
+            $rid = $this->id;
+        }
+
+        $this->_db->begin();   
+
+        DB::delete('permissions')
+            ->where('rid', '=', $rid)
+            ->execute(self::$_permission_db);
+
+        foreach($permissions as $permission)
+        {
+            $prefix = substr($permission, 0, strpos($permission, '-'));
+            switch($prefix)
+            {
+                case 'menu':
+                    break;
+                case 'controller':
+                    break;
+                default:
+                    $prefix = 'other';
+            }
+
+            DB::insert('permissions')
+                ->columns(array('rid', 'permission', 'module'))
+                ->values(array($rid, $permission, $prefix))
+                ->execute(self::$_permission_db);
+        }
+
+        $this->_db->commit();
+     }
 
 } // End Auth Role Model

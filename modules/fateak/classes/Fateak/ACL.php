@@ -10,6 +10,7 @@ class Fateak_ACL
 
     public static $_perm = array();
 
+    public static $_all_perms = array();
 
     /**
      * Retrieves all named permissions
@@ -24,9 +25,27 @@ class Fateak_ACL
      */
     public static function all($refresh_cache = FALSE)
     {
-        $result = array();
+        if (self::cache() && ( ! $refresh_cache ) )
+        {
+            return $cache->get('ACL::cache()');
+        } 
+        else 
+        {
+            $result = array();
 
-        $result['menus'] = self::menus_permission();
+            $result['menus'] = self::menus_permissions_od();
+            $result['extra'] = self::extra_permissions();
+
+            $od_actions = array();
+            self::actiontree2od($od_actions, self::action_permissions());
+            $result['actions'] = $od_actions;
+
+            self::$_all_perms = $result;
+
+            self::cache(TRUE);
+        }
+        
+        
         return self::$_all_perms;
     }
 
@@ -133,6 +152,29 @@ class Fateak_ACL
     }
 
     /**
+     * Action tree to OD Array
+     */
+    protected static function actiontree2od(& $od, $tree)
+    {
+        foreach ($tree as $k => $node)
+        {
+            if (! is_array($node))
+            {
+                continue;
+            }
+
+            if (strpos($k, 'Controller') === 0)
+            {
+                $od[$k] = $node;
+            }
+            else
+            {
+                self::actiontree2od($od, $node);
+            }
+        }
+    }
+
+    /**
      * Get permissions from menus
      *
      * Example: Access Permission of user-list is called menu-user-list
@@ -175,6 +217,30 @@ class Fateak_ACL
 
         return $permissions;
     }
+
+    /**
+     * Get menus with one-dimensional 
+     */
+     protected static function menus_permissions_od()
+     {
+        $result = array();
+        $menus = array();
+
+        $root_menus = Menu::root_menus(); 
+
+        foreach ($root_menus as $root_menu)
+        {
+            $whole_menu = ORM::factory('Menu')
+                ->where('scp', '=', $root_menu->scp)
+				->where('active', '=', 1)
+				->order_by('lft', 'ASC')
+                ->find_all();
+
+            $menus[$root_menu->name] = $whole_menu->as_array(); 
+        }
+
+        return $menus;
+     }
 
     /**
      * Setter/Getter for ACL cache
@@ -231,12 +297,12 @@ class Fateak_ACL
                 }
 
                 // perms were cached
-                return self::$cache = TRUE;
+                return TRUE;
             }
             else
             {
                 // perms were not cached
-                return self::$cache = FALSE;
+                return FALSE;
             }
         }
     }
