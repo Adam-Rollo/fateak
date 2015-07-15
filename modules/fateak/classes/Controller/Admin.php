@@ -65,13 +65,6 @@ abstract class Controller_Admin extends Controller_Template
                 }
             }
         }
-        else
-        {
-            if (! is_null($user))
-            {
-                HTTP::redirect( $controller );
-            }    
-        }
 
         // View variable
         $this->template->controller = $controller;

@@ -54,6 +54,7 @@
     jQuery.fn.FForm = function(opt) {
         options = mergeObjects(formSettings, opt);
         this.find('.ajax-modal-body').html(options['btnWords']['loading'] + '...');
+        this.find('.modal-alert').html('');
         initForm(this);
         return this;
     };

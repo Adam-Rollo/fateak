@@ -145,27 +145,16 @@ abstract class Kohana_Controller {
 		return HTTP::check_cache($this->request, $this->response, $etag);
 	}
 
-        /**
-         * Init Controller Request
-         */
-        protected function init_controller()
-        {
-                // execute action before controller
-                $errors = array();
-                Module::action('before_controller', $errors);
-                
-                // process event errors
-                if (! empty($errors))
-                {
-                    $error_messages = "";
-                    foreach ($errors as $error)
-                    {
-                        $error_messages .= __($error) . " " . PHP_EOL;
-                    }
+    /**
+     * Init Controller Request
+     */
+    protected function init_controller()
+    {
+        // execute action before controller
+        $errors = array();
+        Module::action('before_controller', $errors);
 
-                    throw new Kohana_Exception($error_messages);
-                }
-
-        }
+        Log::action($errors);
+    }
 
 }

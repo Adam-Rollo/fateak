@@ -148,7 +148,7 @@ abstract class Captcha {
 		// Generate a new challenge
 		$this->response = $this->generate_challenge();
 
-		Kohana::$log->add(Log::DEBUG, 'Captcha Library initialized');
+		//Kohana::$log->add(Log::DEBUG, 'Captcha Library initialized');
 	}
 
 	/**

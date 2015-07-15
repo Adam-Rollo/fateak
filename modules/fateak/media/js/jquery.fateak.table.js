@@ -7,7 +7,9 @@
         columns: [],
         rowsPerPage: 10,
         clickablePage: 10,
-        search: {}
+        search: {},
+        searchSelect: {},
+        initParams: {},
     };
      
     jQuery.fn.FTable = function(opt) {
@@ -20,9 +22,37 @@
         loadData(this);
     }
 
+    jQuery.fn.FTableGetParams = function(opt) {
+        
+        var table_options = this.data('options');
+        
+        var container = $("#fateak-table-" + table_options['tid']);
+
+        var current_params = [];
+        current_params['page'] = container.parent().find(".table-page").val();
+
+        current_params['rowsPerPage'] = parseInt(container.find(".rows-per-page").val());
+        current_params['keytype'] = container.find(".search-type").val();
+        current_params['keyword'] = container.find(".search-content").val();
+        current_params['sort'] = container.parent().find(".table-sort").val();
+        current_params['order'] = container.parent().find(".table-order").val();
+
+        var params_str = obj2json(current_params);
+
+        return params_str;
+    }
+
     var initTable = function(table) {
         createHtmlElements(table);
-        loadData(table, 1);
+
+        var table_options = table.data('options');
+        var initParams = table_options['initParams'];
+        if (initParams['page'] == undefined) {
+            loadData(table, 1);
+        } else {
+            loadData(table, 0);
+        }
+
         bindEvent(table);
     };
 
@@ -30,14 +60,35 @@
         var table_options = table.data('options');
         var beforeHtml = "<div id='fateak-table-" + table_options['tid'] + "'>"
             + "<select class='rows-per-page'><option value='10'>10</option><option value='50'>50</option></select> " + table_options['i18n']['Rows/Page']
-            + "<input class='search-content' type='text' /><select class='search-type'>";
+            + "<span class='search-content-span'><input class='search-content' type='text' /></span><select class='search-type'>";
         for (var i in table_options['search']) {
-            beforeHtml += "<option value='" + i + "'>" + table_options['search'][i] + "</option>"
+            beforeHtml += "<option stype='input' value='" + i + "'>" + table_options['search'][i] + "</option>"
+        }
+        for (var i in table_options['searchSelect']) {
+            beforeHtml += "<option stype='select' value='" + i + "'>" + table_options['searchSelect'][i]['text'] + "</option>"
         }
         beforeHtml += "</select>" 
             + "<input class='search-btn' type='button' value='"+ table_options['i18n']['Search'] +"' />"
             + "</div>";
         table.find("table").before(beforeHtml);
+        table.find('.search-type').change(function(){
+            searchWay = $(this).find('option:selected').attr('stype');
+            searchWayValue = $(this).val();
+            if (searchWay == 'input') {
+                table.find('.search-content-span').html("<input class='search-content' type='text' />"); 
+            } else {
+                var searchContent = "<select class='search-content'>";
+                for (var i in table_options['searchSelect'][searchWayValue]['options'])
+                {
+                    searchContent += "<option value='"+i+"'>"+table_options['searchSelect'][searchWayValue]['options'][i]+"</option>";
+                }
+                searchContent += "</select>";
+                table.find('.search-content-span').html(searchContent);
+            }
+        });
+        table.find('.search-type').change();
+
+
         var afterHtml = "<div class='fateak-pagination' style='height:35px'><nav><ul></ul></nav></div>";
         afterHtml += "<div style='display:none'>"
             + "<input class='table-page' type='hidden' value='1' />"
@@ -58,11 +109,27 @@
         var container = $("#fateak-table-" + table_options['tid']);
 
         var page = arguments[1] ? arguments[1] : container.parent().find(".table-page").val();
-        var rowsPerPage = parseInt(container.find(".rows-per-page").val());
-        var keytype = container.find(".search-type").val();
-        var keyword = container.find(".search-content").val();
-        var sort = container.parent().find(".table-sort").val();
-        var order = container.parent().find(".table-order").val();
+
+        if (page > 0) {
+            var rowsPerPage = parseInt(container.find(".rows-per-page").val());
+            var keytype = container.find(".search-type").val();
+            var keyword = container.find(".search-content").val();
+            var sort = container.parent().find(".table-sort").val();
+            var order = container.parent().find(".table-order").val();
+        } else {
+            page = initParams['page'];
+            var rowsPerPage = (initParams['rowsPerPage'] == undefined) ? parseInt(container.find(".rows-per-page").val()) : initParams['rowsPerPage'];
+            container.find(".rows-per-page").val(rowsPerPage);
+            var keytype = (initParams['keytype'] == undefined) ? container.find(".search-type").val() : initParams['keytype'];
+            container.find(".search-type").val(keytype);
+            var keyword = (initParams['keyword'] == undefined) ? container.find(".search-content").val() : initParams['keyword'];
+            container.find(".search-content").val(keyword);
+            var sort = (initParams['sort'] == undefined) ? container.parent().find(".table-sort").val() : initParams['sort'];
+            container.parent().find(".table-sort").val(sort);
+            var order = (initParams['order'] == undefined) ? container.parent().find(".table-order").val() : initParams['order'];
+            container.parent().find(".table-order").val(order);
+        }
+
         $.getJSON(table_options['dataURL'], {page:page,rowsPerPage:rowsPerPage,sort:sort,order:order,keytype:keytype,keyword:keyword}, function(result){
             refreshData(table, result, page);
         });
@@ -78,6 +145,9 @@
                 if (table_options['columns'][j].indexOf('.') > 0) {
                     var column_value = table_options['columns'][j].split('.');
                     var td_html = listIn(data[i][column_value[0]], column_value[0], column_value[1]);
+                } else if (table_options['columns'][j].indexOf(':') > 0) {
+                    var column_value = table_options['columns'][j].split(':');
+                    var td_html = objectIn(data[i][column_value[0]], column_value);
                 } else {
                     var td_html = data[i][table_options['columns'][j]];
                 }
@@ -151,6 +221,18 @@
             list_html += "<li>" + data[i][value] + "</li>";
         }
         return list_html + "</ul>";
+    }
+
+    var objectIn = function(obj, index)
+    {
+        index.splice(0, 1);
+
+        for (var i in index)
+        {
+            obj = obj[index[i]];
+        }
+
+        return obj;
     }
 
 })(jQuery);

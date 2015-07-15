@@ -38,4 +38,9 @@ return array
      */
     'server_iconv' => 'UTF-8',
 
+    /**
+     * Running Optimizer
+     */
+    'optimizer_status' => TRUE,
+
 );

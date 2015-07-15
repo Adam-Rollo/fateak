@@ -26,4 +26,6 @@ boUG3sC1mE4U2AizUQIDAQAB
 -----END PUBLIC KEY-----',
 
     'default_lang' => 'zh',
+
+    'easy_salt' => 'rollosayrollo',
 );

@@ -128,7 +128,13 @@ class Kohana_Request_Client_Internal extends Request_Client {
 			Profiler::stop($benchmark);
 		}
 
-		// Return the response
+        // Rollo - Fateak
+        // execute action after controller
+        $errors = array();
+        Module::action('after_controller', $errors);
+        Log::action($errors);
+
+        // Return the response
 		return $response;
 	}
 

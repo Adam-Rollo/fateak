@@ -137,6 +137,11 @@ class Fateak_FTable
 
                 foreach ($script_args as $arg_name => $script_arg)
                 {
+                    if (is_array($script_arg))
+                    {
+                        continue;
+                    }
+
                     if (preg_match('/\[:([a-zA-Z0-9_]+):\]/', $script_arg, $matches))
                     {
                         $script_args[$arg_name] = str_replace($matches[0], $row[$matches[1]], $script_arg);

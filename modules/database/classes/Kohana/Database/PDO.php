@@ -11,7 +11,8 @@
 class Kohana_Database_PDO extends Database {
 
 	// PDO uses no quoting for identifiers
-	protected $_identifier = '';
+    // Fateak change '' to '`'
+	protected $_identifier = '`';
 
 	public function __construct($name, array $config)
 	{

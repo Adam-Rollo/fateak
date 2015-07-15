@@ -82,6 +82,18 @@ abstract class Fateak_Webservice {
         return true;
     }
 
+    public function easy_md5($user_id, $auth_token)
+    {
+        $webservice_config = Kohana::$config->load('webservice');
+
+        $right_token = md5($webservice_config['easy_salt'] . $user_id);
+
+        if ($auth_token != $right_token)
+        {
+            throw new Webservice_Exception('Your auth token is wrong.');
+        }
+    }
+
     public function rsa_decode($encrypted)
     {
         $webservice_config = Kohana::$config->load('webservice');

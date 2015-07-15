@@ -53,14 +53,32 @@ class Kohana_Log {
 		return Log::$_instance;
 	}
 
-        /**
-         * Fateak - Rollo
-         */
-        public static function debug($message)
+    /**
+     * Fateak - Rollo
+     */
+    public static function debug($message)
+    {
+        $log = self::instance();
+        $log->add(self::DEBUG, $message);
+    }
+
+    /**
+     * Fateak - Rollo
+     */
+    public static function action($errors)
+    {
+        // process event errors
+        if (! empty($errors))
         {
-            $log = self::instance();
-            $log->add(self::DEBUG, $message);
+            $error_messages = "";
+            foreach ($errors as $error)
+            {
+                $error_messages .= __($error) . " " . PHP_EOL;
+            }
+
+            Log::debug($error_messages);
         }
+    }
 
 	/**
 	 * @var  array  list of added messages

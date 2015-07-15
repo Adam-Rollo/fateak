@@ -98,6 +98,12 @@ class Kohana_ORM extends Model implements serializable {
 	protected $_related = array();
 
 	/**
+	 * @var array
+     * @author Fateak - Rollo
+	 */
+	protected $_related_table_columns = array();
+
+	/**
 	 * @var bool
 	 */
 	protected $_valid = FALSE;
@@ -680,6 +686,9 @@ class Kohana_ORM extends Model implements serializable {
 				$val = $this->pk();
 			}
 
+            // Fateak - Rollo
+            $model->_related_table_columns[$through] = array($this->_has_many[$column]['foreign_key'] => $this->_table_columns[$this->_primary_key]);
+
 			return $model->where($col, '=', $val);
 		}
 		else
@@ -851,11 +860,16 @@ class Kohana_ORM extends Model implements serializable {
 		// Split object parts
 		$aliases = explode(':', $target_path);
 		$target = $this;
+        $alias_name = array(); // Fateak - Rollo
 		foreach ($aliases as $alias)
 		{
 			// Go down the line of objects to find the given target
 			$parent = $target;
 			$target = $parent->_related($alias);
+
+            // Fateak - Rollo
+            $alias_name[] = $alias;
+            $this->_related_table_columns[implode(':', $alias_name)] = $target->table_columns();
 
 			if ( ! $target)
 			{
@@ -892,8 +906,8 @@ class Kohana_ORM extends Model implements serializable {
 		foreach (array_keys($target->_object) as $column)
 		{
 			$name = $target_path.'.'.$column;
-			// Fateak - Rollo change modifier ":" to "_"
-			$alias = $target_path.'_'.$column;
+			// Fateak - Rollo change modifier ":" to "_", And change "_" back to ":" at last
+			$alias = $target_path.':'.$column;
 
 			// Add the prefix so that load_result can determine the relationship
 			$this->select(array($name, $alias));
@@ -1334,10 +1348,10 @@ class Kohana_ORM extends Model implements serializable {
 			$this->_primary_key_value = $this->_object[$this->_primary_key];
 		}
 
-                // Code modified by Fateak Rollo: Next Block
-                $action_errors = array();
-                Module::action($this->_object_name . '_save', $action_errors, $this);
-                if (! empty($action_errors)) Log::debug(implode(PHP_EOL, $action_errors));
+        // Code modified by Fateak Rollo: Next Block
+        $action_errors = array();
+        Module::action($this->_object_name . '_save', $action_errors, $this);
+        Log::action($action_errors);
 
 		// Object is now loaded and saved
 		$this->_loaded = $this->_saved = TRUE;
@@ -1405,10 +1419,10 @@ class Kohana_ORM extends Model implements serializable {
 			$this->_primary_key_value = $data[$this->_primary_key];
 		}
 
-                // Code modified by Fateak Rollo: Next Block
-                $action_errors = array();
-                Module::action($this->_object_name . '_save', $action_errors, $this);
-                if (! empty($action_errors)) Log::debug(implode(PHP_EOL, $action_errors));
+        // Code modified by Fateak Rollo: Next Block
+        $action_errors = array();
+        Module::action($this->_object_name . '_save', $action_errors, $this);
+        Log::action($action_errors);
 
 		// Object has been saved
 		$this->_saved = TRUE;
@@ -1862,7 +1876,7 @@ class Kohana_ORM extends Model implements serializable {
 		// Add pending database call which is executed after query type is determined
 		$this->_db_pending[] = array(
 			'name' => 'where',
-			'args' => array($column, $op, $value),
+			'args' => array($column, $op, $this->_column_type($column, $value)),
 		);
 
 		return $this;
@@ -1881,7 +1895,7 @@ class Kohana_ORM extends Model implements serializable {
 		// Add pending database call which is executed after query type is determined
 		$this->_db_pending[] = array(
 			'name' => 'and_where',
-			'args' => array($column, $op, $value),
+			'args' => array($column, $op, $this->_column_type($column, $value)),
 		);
 
 		return $this;
@@ -1900,7 +1914,7 @@ class Kohana_ORM extends Model implements serializable {
 		// Add pending database call which is executed after query type is determined
 		$this->_db_pending[] = array(
 			'name' => 'or_where',
-			'args' => array($column, $op, $value),
+			'args' => array($column, $op, $this->_column_type($column, $value)),
 		);
 
 		return $this;
@@ -2366,57 +2380,115 @@ class Kohana_ORM extends Model implements serializable {
 		return ( ! $model->loaded());
 	}
 
-        /**
-         * Load script
-         * Working with FTable
-         * 
-         * @author Fateak - Rollo
-         */
-        public function load_ftable_script($params, $columns)
+    /**
+     * Load script
+     * Working with FTable
+     * 
+     * @author Fateak - Rollo
+     */
+    public function load_ftable_script($params, $columns)
+    {
+        $result = array();
+        $function = "get_" . strtolower($this->_table_name); 
+
+        $offset = ($params['page'] - 1) * $params['rowsPerPage'];
+
+        if (isset($params['keywords']))
         {
-                $result = array();
-                $function = "get_" . strtolower($this->_table_name); 
-
-                $offset = ($params['page'] - 1) * $params['rowsPerPage'];
-
-                if (isset($params['keywords']))
-                {
-                        $keytype = "'" . mysql_real_escape_string($params['keytype']) . "'";
-                        $keywords = "'" . mysql_real_escape_string($params['keywords']) . "'";
-                        $fuzzy = $param['fuzzy'] ? '1' : '0';
-                }
-                else
-                {
-                        $keytype = $keywords = "''";
-                        $fuzzy = "'0'";
-                }
-
-                if (isset($params['sort']))
-                {
-                    $sort = $params['sort'];
-                    $order = $params['order'];
-                }
-                else
-                {
-                    $sort = $order = "''";
-                }
-
-
-                $rows =  $this->_db->query(Database::SELECT, "call {$function}({$offset},{$params['rowsPerPage']},'{$sort}','{$order}',{$keytype},{$keywords},{$fuzzy})");
-
-                foreach ($rows as $row)
-                {
-                    $result_row = array();
-                    $i = 0;
-                    foreach ($row as $item)
-                    {
-                        $result_row[$columns[$i]] = $item;
-                        $i++;
-                    }
-                    $result[] = $result_row;
-                }
-
-                return $result;
+            $keytype = "'" . mysql_real_escape_string($params['keytype']) . "'";
+            $keywords = "'" . mysql_real_escape_string($params['keywords']) . "'";
+            $fuzzy = $param['fuzzy'] ? '1' : '0';
         }
+        else
+        {
+            $keytype = $keywords = "''";
+            $fuzzy = "'0'";
+        }
+
+        if (isset($params['sort']))
+        {
+            $sort = $params['sort'];
+            $order = $params['order'];
+        }
+        else
+        {
+            $sort = $order = "''";
+        }
+
+
+        $rows =  $this->_db->query(Database::SELECT, "call {$function}({$offset},{$params['rowsPerPage']},'{$sort}','{$order}',{$keytype},{$keywords},{$fuzzy})");
+
+        foreach ($rows as $row)
+        {
+            $result_row = array();
+            $i = 0;
+            foreach ($row as $item)
+            {
+                $result_row[$columns[$i]] = $item;
+                $i++;
+            }
+            $result[] = $result_row;
+        }
+
+        return $result;
+    }
+
+    /**
+     * column type convert
+     * Fateak - Rollo
+     */
+    protected function _column_type($column, $value)
+    {
+        if (! is_string($value))
+        {
+            return $value;
+        }
+
+        $column_type = $this->_get_table_column_info($column);
+        
+        switch ($column_type['type'])
+        {
+            case 'int':
+                if (preg_match('/^[0-9]*$/', $value))
+                {
+                    return (integer) $value;
+                }
+                break;
+            case 'float':
+                if (is_numeric($value))
+                {
+                    return (float) $value;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Fateak - Rollo
+     */
+    protected function _get_table_column_info($column)
+    {
+        if (strstr($column, '.'))
+        {
+            list($table, $column) = explode('.', $column);
+
+            if ($table == $this->object_name())
+            {
+                return $this->_table_columns[$column];
+            }
+            else
+            {
+                return $this->_related_table_columns[$table][$column];
+            }
+        }
+        else
+        {
+            return $this->_table_columns[$column];
+        }
+    }
 
 } // End ORM

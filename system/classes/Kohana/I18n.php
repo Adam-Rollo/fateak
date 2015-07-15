@@ -20,152 +20,158 @@
  */
 class Kohana_I18n {
 
-	/**
-	 * @var  string   target language: en-us, es-es, zh-cn, etc
-	 */
-	public static $lang = 'en-us';
+    /**
+     * @var  string   target language: en-us, es-es, zh-cn, etc
+     */
+    public static $lang = 'en-us';
 
-	/**
-	 * @var  string  source language: en-us, es-es, zh-cn, etc
-	 */
-	public static $source = 'en-us';
+    /**
+     * @var  string  source language: en-us, es-es, zh-cn, etc
+     */
+    public static $source = 'en-us';
 
-	/**
-	 * @var  string   target language: en, es, zh, etc
-	 */
-	public static $default = 'en';
+    /**
+     * @var  string   target language: en, es, zh, etc
+     */
+    public static $default = 'en';
 
-	/**
-	 * @var  string   active language: en, es, zh, etc
-	 */
-	public static $active = 'en';
+    /**
+     * @var  string   active language: en, es, zh, etc
+     */
+    public static $active = 'en';
 
-	/**
-	 * @var  array  cache of loaded languages
-	 */
-	protected static $_cache = array();
+    /**
+     * @var  array  cache of loaded languages
+     */
+    protected static $_cache = array();
 
-	/**
-	 * @var  array  array of available languages
-	 */
-	protected static $_languages = array();
+    /**
+     * @var  array  array of available languages
+     */
+    protected static $_languages = array();
 
-	/**
-	 * @var  string  source language: en-us, es-es, zh-cn, etc
-	 */
-	public static $_cookie = 'lang';
+    /**
+     * @var  string  source language: en-us, es-es, zh-cn, etc
+     */
+    public static $_cookie = 'lang';
 
-        /**
-         * Initialize I18n to decide language.
-         * Fateak - Rollo
-         * Language detect order:
-         * 1) Cookie
-         * 2) User's configuration
-         * 3) Browser
-         */
-        public static function initialize()
+    /**
+     * Initialize I18n to decide language.
+     * Fateak - Rollo
+     * Language detect order:
+     * 1) Cookie
+     * 2) User's configuration
+     * 3) Browser
+     */
+    public static function initialize()
+    {
+        self::$_languages = Kohana::$config->load('site')->get('installed_locales');
+
+        // Cookie detect
+        $locale = self::cookieLocale();
+
+        // User's configuration
+        if (! $locale)
         {
-                self::$_languages = Kohana::$config->load('site')->get('installed_locales');
-
-                // Cookie detect
-                $locale = self::cookieLocale();
-
-                // User's configuration
-                if (! $locale)
-                {
-                        $locale = self::userLocale();
-                }
-
-                // Detect Browser
-                if (! $locale)
-                {
-                        $locale = self::browserLocale();
-                }
-
-                if(! $locale)
-		{
-			$locale = I18n::$default;
-		}
-
-                self::lang($locale);
-
-                return I18n::$lang;
+            $locale = self::userLocale();
         }
 
-	/**
-	 * Test if $lang exists in the list of available langs in config
-	 *
-	 * @param type  string $lang
-	 * @return bool returns TRUE if $lang is available, otherwise FALSE
-	 */
-	public static function isAvailable($lang)
-	{
-		return (bool) array_key_exists($lang, self::$_languages);
-	}
+        // Detect Browser
+        if (! $locale)
+        {
+            $locale = self::browserLocale();
+        }
 
-	/**
-	 * Detect language based on the request cookie.
-	 *
-	 *     // Get the language
-	 *     $lang = I18n::cookieLocale();
-	 *
-	 * @return  string
-	 */
-	public static function cookieLocale()
-	{
-		$cookie_data = strtolower(Cookie::get(self::$_cookie));
+        if(! $locale)
+        {
+            $locale = I18n::$default;
+        }
 
-		//double check cookie data
-		if ($cookie_data AND preg_match("/^([a-z]{2,3}(?:_[A-Z]{2})?)$/", trim($cookie_data), $matches))
-		{
-			$locale = $matches[1];
+        self::lang($locale);
 
-			if( self::isAvailable($locale) )
-			{
-				return $locale;
-			}
-		}
+        return I18n::$lang;
+    }
 
-		return FALSE;
-	}
+    /**
+     * Test if $lang exists in the list of available langs in config
+     *
+     * @param type  string $lang
+     * @return bool returns TRUE if $lang is available, otherwise FALSE
+     */
+    public static function isAvailable($lang)
+    {
+        return (bool) array_key_exists($lang, self::$_languages);
+    }
 
-	/**
-	 * Detect language based on the User data.
-	 *
-	 *     // Get the language
-	 *     $lang = I18n::userLocale();
-	 *
-	 * @return  string
-	 */
-	public static function userLocale()
-	{
-                $user = User::active_user();
-                $language = $user->language;
+    /**
+     * Detect language based on the request cookie.
+     *
+     *     // Get the language
+     *     $lang = I18n::cookieLocale();
+     *
+     * @return  string
+     */
+    public static function cookieLocale()
+    {
+        $cookie_data = strtolower(Cookie::get(self::$_cookie));
 
-		//double check cookie data
-		if ($language AND preg_match("/^([a-z]{2,3}(?:_[A-Z]{2})?)$/", trim($language), $matches))
-		{
-			$locale = $matches[1];
+        //double check cookie data
+        if ($cookie_data AND preg_match("/^([a-z]{2,3}(?:_[A-Z]{2})?)$/", trim($cookie_data), $matches))
+        {
+            $locale = $matches[1];
 
-			if( self::isAvailable($locale) )
-			{
-				return $locale;
-			}
-		}
+            if( self::isAvailable($locale) )
+            {
+                return $locale;
+            }
+        }
 
-		return FALSE;
-	}
+        return FALSE;
+    }
 
-	/**
-	 * Detect language based on the Web Browser.
-	 *
-	 *     // Get the language
-	 *     $lang = I18n::browserLocale();
-	 *
-	 * @return  string
-	 */
-	public static function browserLocale()
-	{
+    /**
+     * Detect language based on the User data.
+     *
+     *     // Get the language
+     *     $lang = I18n::userLocale();
+     *
+     * @return  string
+     */
+    public static function userLocale()
+    {
+        $user = User::active_user();
+        
+        if (is_null($user))
+        {
+            return FALSE;
+        }
+
+        $language = $user->language;
+
+        //double check cookie data
+        if ($language AND preg_match("/^([a-z]{2,3}(?:_[A-Z]{2})?)$/", trim($language), $matches))
+        {
+            $locale = $matches[1];
+
+            if( self::isAvailable($locale) )
+            {
+                return $locale;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * Detect language based on the Web Browser.
+     *
+     *     // Get the language
+     *     $lang = I18n::browserLocale();
+     *
+     * @return  string
+     */
+    public static function browserLocale()
+    {
                 $browser_langs = Request::accept_lang();
                 if (!is_array($browser_langs))
                 {
@@ -174,16 +180,16 @@ class Kohana_I18n {
 
                 foreach ($browser_langs as $language => $weight)
                 {
-        		//double check cookie data
-		        if ($language AND preg_match("/^([a-z]{2,3}(?:_[A-Z]{2})?)$/", trim($language), $matches))
-		        {
-			        $locale = $matches[1];
+                //double check cookie data
+                if ($language AND preg_match("/^([a-z]{2,3}(?:_[A-Z]{2})?)$/", trim($language), $matches))
+                {
+                    $locale = $matches[1];
 
-			        if( self::isAvailable($locale) )
-			        {
-				        return $locale;
-			        }
-		        }
+                    if( self::isAvailable($locale) )
+                    {
+                        return $locale;
+                    }
+                }
         
                 }
                 
@@ -192,118 +198,118 @@ class Kohana_I18n {
 
 
 
-	/**
-	 * Get and set the target language.
-	 *
-	 *     // Get the current language
-	 *     $lang = I18n::lang();
-	 *
-	 *     // Change the current language to Spanish
-	 *     I18n::lang('es-es');
-	 *
-	 * @param   string  $lang   new language setting
-	 * @return  string
-	 * @since   3.0.2
-	 */
-	public static function lang($lang = NULL)
-	{
+    /**
+     * Get and set the target language.
+     *
+     *     // Get the current language
+     *     $lang = I18n::lang();
+     *
+     *     // Change the current language to Spanish
+     *     I18n::lang('es-es');
+     *
+     * @param   string  $lang   new language setting
+     * @return  string
+     * @since   3.0.2
+     */
+    public static function lang($lang = NULL)
+    {
 
-		if ($lang && self::isAvailable($lang))
-		{
-			// Normalize the language
-			I18n::$lang = strtolower(str_replace(array(' ', '_'), '-', self::$_languages[$lang]['i18n_code']));
+        if ($lang && self::isAvailable($lang))
+        {
+            // Normalize the language
+            I18n::$lang = strtolower(str_replace(array(' ', '_'), '-', self::$_languages[$lang]['i18n_code']));
 
-			// Store the identified lang as active	
+            // Store the identified lang as active  
                         I18n::$active = $lang;
 
-			// Set locale
-			setlocale(LC_ALL, self::$_languages[$lang]['locale']);
-		
-			// Update language in cookie
-			if (strtolower(Cookie::get(self::$_cookie)) !== $lang) 
-			{
-				// Trying to set language to cookies
-				Cookie::set(self::$_cookie, $lang, Date::YEAR);
-			}
-		}
+            // Set locale
+            setlocale(LC_ALL, self::$_languages[$lang]['locale']);
+        
+            // Update language in cookie
+            if (strtolower(Cookie::get(self::$_cookie)) !== $lang) 
+            {
+                // Trying to set language to cookies
+                Cookie::set(self::$_cookie, $lang, Date::YEAR);
+            }
+        }
 
-		return I18n::$lang;
-	}
+        return I18n::$lang;
+    }
 
-	/**
-	 * Returns translation of a string. If no translation exists, the original
-	 * string will be returned. No parameters are replaced.
-	 *
-	 *     $hello = I18n::get('Hello friends, my name is :name');
-	 *
-	 * @param   string  $string text to translate
-	 * @param   string  $lang   target language
-	 * @return  string
-	 */
-	public static function get($string, $lang = NULL)
-	{
-		if ( ! $lang)
-		{
-			// Use the global target language
-			$lang = I18n::$lang;
-		}
+    /**
+     * Returns translation of a string. If no translation exists, the original
+     * string will be returned. No parameters are replaced.
+     *
+     *     $hello = I18n::get('Hello friends, my name is :name');
+     *
+     * @param   string  $string text to translate
+     * @param   string  $lang   target language
+     * @return  string
+     */
+    public static function get($string, $lang = NULL)
+    {
+        if ( ! $lang)
+        {
+            // Use the global target language
+            $lang = I18n::$lang;
+        }
 
-		// Load the translation table for this language
-		$table = I18n::load($lang);
+        // Load the translation table for this language
+        $table = I18n::load($lang);
 
-		// Return the translated string if it exists
-		return isset($table[$string]) ? $table[$string] : $string;
-	}
+        // Return the translated string if it exists
+        return isset($table[$string]) ? $table[$string] : $string;
+    }
 
-	/**
-	 * Returns the translation table for a given language.
-	 *
-	 *     // Get all defined Spanish messages
-	 *     $messages = I18n::load('es-es');
-	 *
-	 * @param   string  $lang   language to load
-	 * @return  array
-	 */
-	public static function load($lang)
-	{
-		if (isset(I18n::$_cache[$lang]))
-		{
-			return I18n::$_cache[$lang];
-		}
+    /**
+     * Returns the translation table for a given language.
+     *
+     *     // Get all defined Spanish messages
+     *     $messages = I18n::load('es-es');
+     *
+     * @param   string  $lang   language to load
+     * @return  array
+     */
+    public static function load($lang)
+    {
+        if (isset(I18n::$_cache[$lang]))
+        {
+            return I18n::$_cache[$lang];
+        }
 
-		// New translation table
-		$table = array();
+        // New translation table
+        $table = array();
 
-		// Split the language: language, region, locale, etc
-		$parts = explode('-', $lang);
+        // Split the language: language, region, locale, etc
+        $parts = explode('-', $lang);
 
-		do
-		{
-			// Create a path for this set of parts
-			$path = implode(DIRECTORY_SEPARATOR, $parts);
+        do
+        {
+            // Create a path for this set of parts
+            $path = implode(DIRECTORY_SEPARATOR, $parts);
 
-			if ($files = Kohana::find_file('i18n', $path, NULL, TRUE))
-			{
-				$t = array();
-				foreach ($files as $file)
-				{
-					// Merge the language strings into the sub table
-					$t = array_merge($t, Kohana::load($file));
-				}
+            if ($files = Kohana::find_file('i18n', $path, NULL, TRUE))
+            {
+                $t = array();
+                foreach ($files as $file)
+                {
+                    // Merge the language strings into the sub table
+                    $t = array_merge($t, Kohana::load($file));
+                }
 
-				// Append the sub table, preventing less specific language
-				// files from overloading more specific files
-				$table += $t;
-			}
+                // Append the sub table, preventing less specific language
+                // files from overloading more specific files
+                $table += $t;
+            }
 
-			// Remove the last part
-			array_pop($parts);
-		}
-		while ($parts);
+            // Remove the last part
+            array_pop($parts);
+        }
+        while ($parts);
 
-		// Cache the translation table locally
-		return I18n::$_cache[$lang] = $table;
-	}
+        // Cache the translation table locally
+        return I18n::$_cache[$lang] = $table;
+    }
 
         /**
          * Base on bootstrap and fateak.js
@@ -333,29 +339,29 @@ class Kohana_I18n {
 
 if ( ! function_exists('__'))
 {
-	/**
-	 * Kohana translation/internationalization function. The PHP function
-	 * [strtr](http://php.net/strtr) is used for replacing parameters.
-	 *
-	 *    __('Welcome back, :user', array(':user' => $username));
-	 *
-	 * [!!] The target language is defined by [I18n::$lang].
-	 *
-	 * @uses    I18n::get
-	 * @param   string  $string text to translate
-	 * @param   array   $values values to replace in the translated text
-	 * @param   string  $lang   source language
-	 * @return  string
-	 */
-	function __($string, array $values = NULL, $lang = 'en-us')
-	{
-		if ($lang !== I18n::$lang)
-		{
-			// The message and target languages are different
-			// Get the translation for this message
-			$string = I18n::get($string);
-		}
+    /**
+     * Kohana translation/internationalization function. The PHP function
+     * [strtr](http://php.net/strtr) is used for replacing parameters.
+     *
+     *    __('Welcome back, :user', array(':user' => $username));
+     *
+     * [!!] The target language is defined by [I18n::$lang].
+     *
+     * @uses    I18n::get
+     * @param   string  $string text to translate
+     * @param   array   $values values to replace in the translated text
+     * @param   string  $lang   source language
+     * @return  string
+     */
+    function __($string, array $values = NULL, $lang = 'en-us')
+    {
+        if ($lang !== I18n::$lang)
+        {
+            // The message and target languages are different
+            // Get the translation for this message
+            $string = I18n::get($string);
+        }
 
-		return empty($values) ? $string : strtr($string, $values);
-	}
+        return empty($values) ? $string : strtr($string, $values);
+    }
 }
