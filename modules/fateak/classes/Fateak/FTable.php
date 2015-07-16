@@ -31,7 +31,9 @@ class Fateak_FTable
         $offset = ($params['page'] - 1) * $params['rowsPerPage'];
         if ($params['keyword'])
         {
-            if ($options['fuzzy'])
+            $keytype_type = $model->column_info($params['keytype']);
+
+            if ($keytype_type['type'] == 'string' && $options['fuzzy'])
             {
                 // if processing become slow. delete "%" and use '='.
                 $model->where($params['keytype'], 'LIKE', '%'.$params['keyword'].'%');

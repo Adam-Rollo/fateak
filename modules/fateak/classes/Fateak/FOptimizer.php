@@ -15,11 +15,32 @@ class Fateak_FOptimizer
     {
         // init
         $redis = FRedis::instance();
-        $uri = "unknown";
 
         // 分部统计
         $details = array();
         $groups = Profiler::groups();
+
+        if (! isset($groups['requests']))
+        {
+            return false;
+        }
+
+        $requests =  array_keys($groups['requests']);
+        $uri = strtolower(str_replace('"', '', $requests[0]));
+                
+
+        if (strpos($uri, 'assets') === 0)
+        {
+            $random_number = mt_rand(0, 1000);
+
+            if ($random_number > 10)
+            {
+                return false;
+            }
+
+            $uri = 'assets/all';
+        }
+
         foreach ($groups as $group_name => $group)
         {
             $details[$group_name] = array();
@@ -27,17 +48,19 @@ class Fateak_FOptimizer
             if ($group_name == 'requests')
             {
                 $requests = array_keys($group);
-                $uri = str_replace('"', '', $requests[0]);
 
                 foreach ($group as $name => $tokens)
                 {
                     $name = str_replace('"', '', $name);
                     $details[$group_name][$name] = Profiler::stats($tokens);
+                    $details[$group_name][$name]['exe_times'] = count($tokens);
                 }
                 
             }
             else if (strpos($group_name, 'database') === 0)
             {
+                $db_tokens = array();
+
                 foreach ($group as $name => $tokens)
                 {
                     if (strstr($name , 'WHERE'))
@@ -54,7 +77,22 @@ class Fateak_FOptimizer
                         $key = $name;
                     }
 
-                    $details[$group_name][$key] = Profiler::stats($tokens);
+
+                    if (isset($db_tokens[$key]))
+                    {
+                        $db_tokens[$key] = array_merge($db_tokens[$key], $tokens);
+                    }
+                    else
+                    {
+                        $db_tokens[$key] = $tokens;
+                    }
+
+                }
+
+                foreach ($db_tokens as $key => $tokens_array)
+                {
+                    $details[$group_name][$key] = Profiler::stats($tokens_array);
+                    $details[$group_name][$key]['exe_times'] = count($tokens_array);
                 }
   
             }
@@ -63,19 +101,21 @@ class Fateak_FOptimizer
                 foreach ($group as $name => $tokens)
                 {
                     $details[$group_name][$name] = Profiler::stats($tokens);
+                    $details[$group_name][$name]['exe_times'] = count($tokens);
                 }
             }
         }
 
-        Log::debug(Fsystem::dump_str($details));
-
         $details_json = JSON::encode($details);
-            
-        $result = $redis->lua('record_profiler', array($uri, $details_json), 1);
 
-        Log::debug(Fsystem::dump_str($result));
-        $result = $redis->getLastError();
-        Log::debug(Fsystem::dump_str($result));
+        $result = $redis->lua('record_profiler', array($uri, $details_json, time()), 1);
+
+        $errors = $redis->getLastError();
+
+        if ($errors)
+        {
+            Log::debug($errors);
+        }
     }
 }
 

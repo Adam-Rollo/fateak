@@ -24,28 +24,30 @@ for group_name, group in pairs(data) do
             redis.call('HSET', 'foptimizer.info:' .. itemkey, 'max_memory', tonumber(item_info.max.memory))
         end
         -- Mim Memory
-        local min_memory = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'min_memory') or 999999
-        if tonumber(item_info.min.memory) > tonumber(min_memory) then
+        local min_memory = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'min_memory') or 2147483636
+        if tonumber(item_info.min.memory) < tonumber(min_memory) then
             redis.call('HSET', 'foptimizer.info:' .. itemkey, 'min_memory', tonumber(item_info.min.memory))
         end
         -- Total time
-        local total_time = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'total_time') or 0 
+        local total_time = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'total_time') or tonumber(item_info.total.time)
         total_time = (total_time * 9 + tonumber(item_info.total.time)) / 10
         redis.call('HSET', 'foptimizer.info:' .. itemkey, 'total_time', total_time)
         -- Total memory
-        local total_memory = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'total_memory') or 0
+        local total_memory = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'total_memory') or tonumber(item_info.total.memory)
         total_memory = (total_memory * 9 + tonumber(item_info.total.memory)) / 10
         redis.call('HSET', 'foptimizer.info:' .. itemkey, 'total_memory', total_memory)
         -- Average time
-        local average_time = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'average_time') or 0
+        local average_time = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'average_time') or tonumber(item_info.average.time)
         average_time = (average_time * 9 + tonumber(item_info.average.time)) / 10
         redis.call('HSET', 'foptimizer.info:' .. itemkey, 'average_time', average_time)
         -- Average memory
-        local average_memory = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'average_memory') or 0
+        local average_memory = redis.call('HGET', 'foptimizer.info:' .. itemkey, 'average_memory') or tonumber(item_info.average.memory)
         average_memory = (average_memory * 9 + tonumber(item_info.average.memory)) / 10
         redis.call('HSET', 'foptimizer.info:' .. itemkey, 'average_memory', average_memory)    
         -- updated time
         redis.call('HSET', 'foptimizer.info:' .. itemkey, 'updated_time', ARGV[2]) 
+        -- exe times
+        redis.call('HSET', 'foptimizer.info:' .. itemkey, 'exe_times', item_info.exe_times) 
     end
 end
 

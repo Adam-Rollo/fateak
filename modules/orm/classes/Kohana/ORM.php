@@ -2434,6 +2434,14 @@ class Kohana_ORM extends Model implements serializable {
     }
 
     /**
+     * Fateak - Rollo
+     */
+    public function column_info($column)
+    {
+        return $this->_get_table_column_info($column);
+    }
+
+    /**
      * column type convert
      * Fateak - Rollo
      */
