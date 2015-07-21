@@ -21,7 +21,31 @@ class Fateak_Fsystem
             $prefix = $user_id . $extra;
         }
 
-        return uniqid($prefix . mt_rand(1000, 9999), true);
+        $id = uniqid($prefix . mt_rand(1000, 9999), true);
+
+        return str_replace('.', '', $id);
+
+    }
+
+    /**
+     * Fateak - unique number
+     */
+    public static function uniqueNumber($user_id = null)
+    {
+        if (is_null($user_id))
+        {
+            $user_id = mt_rand(10,99);
+        }
+        else
+        {
+            $user_id = $user_id % 100;
+        }
+
+        $timeID = (time() + microtime()) * 10000;
+
+        $salt = mt_rand(100,999) * 100 + $user_id;
+
+        return (string) $timeID . (string) $salt;
 
     }
 

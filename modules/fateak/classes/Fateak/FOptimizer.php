@@ -63,17 +63,53 @@ class Fateak_FOptimizer
 
                 foreach ($group as $name => $tokens)
                 {
+                    $sql_type = substr($name, 0, 6);
+
                     if (strstr($name , 'WHERE'))
                     {
-                        list($select, $condition) = explode('WHERE', $name);
 
-                        $key = preg_replace('/= ([\S]+)/', '= @', $condition);
-                        $key = preg_replace('/OFFSET ([0-9]+)/', 'OFFSET @', $key);
+                        list($main, $condition) = explode('WHERE', $name);
 
-                        $key = $select . "WHERE" . $key;
+                        $condition = preg_replace('/= ([\S]+)/', '= @', $condition);
+
+                        switch ($sql_type)
+                        {
+                            case 'SELECT':
+                                $condition = preg_replace('/OFFSET ([0-9]+)/', 'OFFSET @', $condition);
+                                break;
+                            case 'INSERT':
+                                $main = preg_replace('/VALUES \([ \S]*\)/', 'VALUES @ ', $main);
+                                break;
+                            case 'UPDATE':
+                                $main = preg_replace('/SET [ \S]*/', 'SET @ ', $main);
+                                break;
+                            case 'DELETE':
+                                break;
+                            default:
+                                break;
+                        }
+
+                        $key = $main . "WHERE" . $condition;
                     }
                     else
                     {
+                        switch ($sql_type)
+                        {
+                            case 'SELECT':
+                                $name = preg_replace('/OFFSET ([0-9]+)/', 'OFFSET @', $name);
+                                break;
+                            case 'INSERT':
+                                $name = preg_replace('/VALUES \([ \S]*\)/', 'VALUES @ ', $name);
+                                break;
+                            case 'UPDATE':
+                                $name = preg_replace('/SET [ \S]*/', 'SET @ ', $name);
+                                break;
+                            case 'DELETE':
+                                break;
+                            default:
+                                break;
+                        }
+
                         $key = $name;
                     }
 

@@ -27,6 +27,8 @@ class Fateak_ACL
     {
         if (self::cache() && ( ! $refresh_cache ) )
         {
+            $cache = Cache::instance();
+
             return $cache->get('ACL::cache()');
         } 
         else 

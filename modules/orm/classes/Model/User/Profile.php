@@ -34,6 +34,11 @@ class Model_User_Profile extends ORM
     {
         foreach ($this->_image_fields as $field_name)
         {
+            if (! isset($values[$field_name]))
+            {
+                continue;
+            }
+
             $images = JSON::decode($values[$field_name]);
 
             if (is_array($images))
@@ -55,6 +60,7 @@ class Model_User_Profile extends ORM
                 $values[$field_name] = JSON::encode($images_array);
             }
         }
-	return $this->values($values, $expected)->update();
+
+	    return $this->values($values, $expected)->update();
     }
 }

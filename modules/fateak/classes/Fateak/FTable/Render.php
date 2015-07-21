@@ -12,6 +12,12 @@ class Fateak_FTable_Render
         $img_arr = JSON::decode($src);
 
         $result = "<ul>";
+
+        if (! is_array($img_arr))
+        {
+            return "";
+        }
+
         foreach($img_arr as $img)
         {
             $result .= "<li style='float:left;list-style:none;margin-right:10px'><img src='{$img}' {$attr} /></li>";

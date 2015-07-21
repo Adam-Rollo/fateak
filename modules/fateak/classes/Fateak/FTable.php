@@ -111,6 +111,33 @@ class Fateak_FTable
 
             foreach ($btns as $bn => $btn)
             {
+                if (is_array($btn))
+                {
+                    $filter_callback = $btn['callback'];
+                    $filter_params = $btn['params'];
+
+                    foreach ($filter_params as $filter_k => $filter_v)
+                    {
+                        preg_match_all('/\[:([a-zA-Z0-9_]+):\]/', $filter_v, $matches);
+
+                        foreach ($matches[1] as $k => $column)
+                        {
+                            if (isset($row[$column]))
+                            {
+                                $filter_params[$filter_k] = str_replace($matches[0][$k], $row[$column], $filter_v);
+                            }
+                        }
+                    }
+
+                    if (! $filter_callback($filter_params))
+                    {
+                        $row[$bn] = '';
+                        continue;
+                    }
+
+                    $btn = $btn['text'];
+                }
+
                 preg_match_all('/\[:([a-zA-Z0-9_]+):\]/', $btn, $matches);
 
                 foreach ($matches[1] as $k => $column)
@@ -144,13 +171,32 @@ class Fateak_FTable
                         continue;
                     }
 
-                    if (preg_match('/\[:([a-zA-Z0-9_]+):\]/', $script_arg, $matches))
+                    if (preg_match('/\[:([a-zA-Z0-9_:]+):\]/', $script_arg, $matches))
                     {
-                        $script_args[$arg_name] = str_replace($matches[0], $row[$matches[1]], $script_arg);
+                        if (strstr($matches[1], ':'))
+                        {
+                            $var_iterator = explode(':', $matches[1]);
+                            $value = & $row[$var_iterator[0]];
+                            unset($var_iterator[0]);
+
+                            foreach($var_iterator as $k)
+                            {
+                                $value = & $value[$k];
+                            }
+
+                            $script_args[$arg_name] = str_replace($matches[0], $value, $script_arg);
+
+                            $value = call_user_func_array(array($script_class, $script_function), $script_args);
+                        }
+                        else
+                        {
+                            $script_args[$arg_name] = str_replace($matches[0], $row[$matches[1]], $script_arg);
+                            $row[$scolumn] = call_user_func_array(array($script_class, $script_function), $script_args);
+                        }
+
                     }
                 }
 
-                $row[$scolumn] = call_user_func_array(array($script_class, $script_function), $script_args);
             }
 
             $result[] = $row;

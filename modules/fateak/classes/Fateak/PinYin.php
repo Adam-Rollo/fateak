@@ -8,9 +8,12 @@ class Fateak_PinYin
     /**
      * 得到中文的所有拼音
      */
-    public function getAllPY($chinese, $delimiter = '', $length = 0) {
+    public function getAllPY($chinese, $delimiter = '', $length = 0) 
+    {
+       $chinese = iconv('UTF-8', 'GBK', $chinese);
        $py = $this->zh_to_pys($chinese, $delimiter);
-       if($length) {
+       if($length) 
+       {
            $py = substr($py, 0, $length);
        }
        return $py;
@@ -19,11 +22,15 @@ class Fateak_PinYin
     /**
      * 得到中文的首字母拼音
      */
-    public function getFirstPY($chinese){
+    public function getFirstPY($chinese)
+    {
+       $chinese = iconv('UTF-8', 'GBK', $chinese);
        $result = '' ;
-       for ($i=0; $i<strlen($chinese); $i++) {
+       for ($i=0; $i<strlen($chinese); $i++) 
+       {
            $p = ord(substr($chinese,$i,1));
-           if ($p>160) {
+           if ($p>160) 
+           {
               $q = ord(substr($chinese,++$i,1));
               $p = $p*256 + $q - 65536;
            }
@@ -36,15 +43,23 @@ class Fateak_PinYin
     /**
      * 中文转拼音
      */
-    private function zh_to_py($num, $blank = '') {
-       if($num>0 && $num<160 ) {
+    private function zh_to_py($num, $blank = '') 
+    {
+       if($num>0 && $num<160 ) 
+       {
            return chr($num);
-       } elseif ($num<-20319||$num>-10247) {
+       } 
+       elseif ($num<-20319||$num>-10247) 
+       {
            return $blank;
-       } else {
-           foreach ($this->pylist as $py => $code) {
-              if($code > $num) break;
-              $result = $py;
+       } 
+       else 
+       {
+           foreach ($this->pylist as $py => $code) 
+           {
+               if($code > $num) 
+                   break;
+               $result = $py;
            }
            return $result;
        }
@@ -54,16 +69,20 @@ class Fateak_PinYin
     /**
      * 转所有的拼音
      */
-    private function zh_to_pys($chinese, $delimiter = ' ', $first=0){
+    private function zh_to_pys($chinese, $delimiter = ' ', $first=0)
+    {
        $result = array();
-       for($i=0; $i<strlen($chinese); $i++) {
+       for($i=0; $i<strlen($chinese); $i++) 
+       {
            $p = ord(substr($chinese,$i,1));
-           if($p>160) {
+           if($p>160) 
+           {
               $q = ord(substr($chinese,++$i,1));
               $p = $p*256 + $q - 65536;
            }
            $result[] = $this->zh_to_py($p);
-           if ($first) {
+           if ($first) 
+           {
               return $result[0];
            }
        }

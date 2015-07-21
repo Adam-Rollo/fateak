@@ -130,6 +130,11 @@ class Fateak_User
      */
     public function is_role($role)
     {
+        if (is_null($this->_base_info) || (! $this->_base_info->loaded()))
+        {
+            return false;
+        }
+
         return in_array($role, $this->_roles) || ($this->_base_info->id == self::ADMIN_ID);
     }
 
@@ -151,6 +156,31 @@ class Fateak_User
         $user = ORM::factory("User", $user_id);
         self::$_current_user = new User(array('base' => $user), $extra_info);
         self::$_current_user->_permissions = ACL::get_user_permissions($user);
+    }
+
+    /**
+     * Get roles by user id
+     */
+    public static function get_roles($user_id = null)
+    {
+        if (is_null($user_id))
+        {
+            return $this->_roles;
+        }
+
+        $result = DB::select('role_id')
+            ->from('roles_users')
+            ->where('user_id', '=', $user_id)
+            ->execute();
+
+        $roles = array();
+
+        foreach ($result as $role)
+        {
+            $roles[] = $role['role_id'];
+        }
+
+        return $roles;
     }
 
 }

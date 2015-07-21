@@ -253,8 +253,19 @@ class Kohana_Kohana_Exception extends Exception {
 				$trace = array_slice($trace, 0, 2);
 			}
 
-			// Instantiate the error view.
-			$view = View::factory(Kohana_Exception::$error_view, get_defined_vars());
+            // Fateak - Rollo
+            if (Kohana::$environment == Kohana::PRODUCTION)
+            {
+                $code = $e->getCode();
+                $view_name = in_array($code, array('403', '404')) ? $code : '500';
+
+                $view = View::factory('errors/' . $view_name);
+            }
+            else
+            {
+			    // Instantiate the error view.
+			    $view = View::factory(Kohana_Exception::$error_view, get_defined_vars());
+            }
 
 			// Prepare the response object.
 			$response = Response::factory();

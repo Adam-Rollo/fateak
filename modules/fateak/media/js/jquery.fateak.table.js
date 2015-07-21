@@ -108,7 +108,7 @@
         tb.html("<tr><td>" + table_options['i18n']['Loading Data...'] + "</td></tr>");
         var container = $("#fateak-table-" + table_options['tid']);
 
-        var page = arguments[1] ? arguments[1] : container.parent().find(".table-page").val();
+        var page = (arguments[1] != undefined) ? arguments[1] : container.parent().find(".table-page").val();
 
         if (page > 0) {
             var rowsPerPage = parseInt(container.find(".rows-per-page").val());
@@ -117,7 +117,9 @@
             var sort = container.parent().find(".table-sort").val();
             var order = container.parent().find(".table-order").val();
         } else {
-            page = initParams['page'];
+            var initParams = table_options['initParams'];
+            page = (initParams['page'] == undefined) ? 1 : initParams['page'];
+            container.parent().find(".table-page").val(page);
             var rowsPerPage = (initParams['rowsPerPage'] == undefined) ? parseInt(container.find(".rows-per-page").val()) : initParams['rowsPerPage'];
             container.find(".rows-per-page").val(rowsPerPage);
             var keytype = (initParams['keytype'] == undefined) ? container.find(".search-type").val() : initParams['keytype'];
@@ -148,6 +150,13 @@
                 } else if (table_options['columns'][j].indexOf(':') > 0) {
                     var column_value = table_options['columns'][j].split(':');
                     var td_html = objectIn(data[i][column_value[0]], column_value);
+                } else if (table_options['columns'][j].indexOf('~') > 0) {
+                    var all_values = table_options['columns'][j].split('~');
+                    var td_html = "";
+                    for (var v in all_values)
+                    {
+                        td_html += data[i][all_values[v]];
+                    }
                 } else {
                     var td_html = data[i][table_options['columns'][j]];
                 }
@@ -167,6 +176,7 @@
         var rowsPerPage = parseInt(container.find(".rows-per-page").val());
         var totalPages = Math.ceil(total / rowsPerPage);
         var nextPage = (parseInt(page) + 1 > totalPages) ? totalPages : (parseInt(page) + 1);
+        nextPage = (nextPage < prePage) ? prePage : nextPage;
         var beginPage = (Math.floor(table_options['clickablePage'] / 2) >= page) ? 1 : (page - Math.floor(table_options['clickablePage'] / 2));
         if (totalPages > table_options['clickablePage']) {
             beginPage = (beginPage > (totalPages - table_options['clickablePage'])) ? (totalPages - table_options['clickablePage'] + 1) : beginPage;

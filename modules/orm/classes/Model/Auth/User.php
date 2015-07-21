@@ -214,4 +214,23 @@ class Model_Auth_User extends ORM {
 		return $this->values($values, $expected)->update($extra_validation);
 	}
 
+    /**
+     * Fateak - Rollo
+     */
+    public function refresh_roles($roles)
+    {
+        if (in_array(0, $roles))
+        {
+            throw new Kohana_Exception('You are fool me !');
+        }
+
+        $this->_db->begin();
+
+        $this->remove('roles');
+
+        $this->add('roles', $roles);
+
+        $this->_db->commit();
+    }
+
 } // End Auth User Model

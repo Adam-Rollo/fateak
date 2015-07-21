@@ -22,15 +22,15 @@
                 <td rowspan='2' width='40%'><div><?php echo $item_name ?></div></td>
                 <td><div>最大时间</div><div><?php echo round($item['max_time'] * 1000, 3) ?>ms</div></td>
                 <td><div>最小时间</div><div><?php echo round($item['min_time'] * 1000, 3) ?>ms</div></td>
-                <td><div>总时间</div><div><?php echo round($item['total_time'] * 1000, 3) ?>ms</div></td>
-                <td><div>平均时间</div><div><?php echo round($item['average_time'] * 1000, 3) ?>ms</div></td>
+                <td><div>平均总时</div><div><?php echo round($item['total_time'] * 1000, 3) ?>ms</div></td>
+                <td><div>平均单时</div><div><?php echo round($item['average_time'] * 1000, 3) ?>ms</div></td>
                 <td><div>执行次数</div><div><?php echo $item['exe_times'] ?>次</div></td>
             </tr>
             <tr>
                 <td><div>最大内存</div><div><?php echo ceil($item['max_memory']) ?>byte</div></td>
                 <td><div>最小内存</div><div><?php echo ceil($item['min_memory']) ?>byte</div></td>
-                <td><div>总内存</div><div><?php echo ceil($item['total_memory']) ?>byte</div></td>
-                <td><div>平均内存</div><div><?php echo ceil($item['average_memory']) ?>byte</div></td>
+                <td><div>平均总存</div><div><?php echo ceil($item['total_memory']) ?>byte</div></td>
+                <td><div>平均单存</div><div><?php echo ceil($item['average_memory']) ?>byte</div></td>
                 <td><div>更新时间</div><div><?php echo date('Y-m-d H:i:s', $item['updated_time']) ?></div></td>
             </tr>
         <?php endforeach; ?>

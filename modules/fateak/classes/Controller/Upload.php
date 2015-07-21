@@ -155,6 +155,11 @@ class Controller_Upload extends Controller
         $image = Image::factory($file_src);
         $ratio = ($image->width > $ruler) ? $image->width / $ruler : 1;
 
+        if (! is_numeric($height))
+        {
+            $height = $image->height;
+        }
+
         $ajax = new Fajax();
         $new_file = File::changeName($file_src);
 
