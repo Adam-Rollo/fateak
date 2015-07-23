@@ -128,6 +128,7 @@ class Fateak_Session_Redis extends Session
         $this->_redis->hSet($session_key, 'ip', Request::$client_ip);        
         $this->_redis->hSet($session_key, 'content', $this->__toString());        
         $this->_redis->hSet($session_key, 'last_active', $this->_data['last_active']);        
+        $this->_redis->setTimeout($session_key, $this->_lifetime);        
 
         Cookie::set($this->_name, $this->_session_id, $this->_lifetime);
 
@@ -143,9 +144,7 @@ class Fateak_Session_Redis extends Session
     {
         $session_key = $this->_table_name . ":" . $this->_session_id;
 
-        $this->_redis->hDel($session_key, 'ip');
-        $this->_redis->hDel($session_key, 'content');
-        $this->_redis->hDel($session_key, 'last_active');
+        $this->_redis->delete($session_key);
 
         Cookie::delete($this->_name);
     }

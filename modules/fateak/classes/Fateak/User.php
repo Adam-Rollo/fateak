@@ -58,23 +58,25 @@ class Fateak_User
             }
 
             self::$_current_user = new User(array('base' => $base_info), $extra_info);
+
+            $roles = ACL::get_user_roles($base_info);
+
+            foreach ($roles as $role)
+            {
+                self::$_current_user->_roles[] = $role->name;
+
+            }
+
+            self::$_current_user->_permissions = ACL::get_user_permissions($base_info);
+
         }
         else
         {
             $base_info = self::$_current_user->get();
         }
 
-        $roles = ACL::get_user_roles($base_info);
 
-        foreach ($roles as $role)
-        {
-            self::$_current_user->_roles[] = $role->name;
-
-        }
-
-        self::$_current_user->_permissions = ACL::get_user_permissions($base_info);
-
-        return is_null($extra_info) ? self::$_current_user->get() : self::$_current_user;
+        return is_null($extra_info) ? $base_info : self::$_current_user;
     }
 
 
