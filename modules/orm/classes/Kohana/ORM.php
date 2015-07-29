@@ -250,6 +250,12 @@ class Kohana_ORM extends Model implements serializable {
 	 */
 	protected $_errors_filename = NULL;
 
+    /**
+     * Select manual
+     * Fateak - Rollo
+     */
+    protected $_select_manual = FALSE;
+
 	/**
 	 * Constructs a new model and loads a record if given
 	 *
@@ -849,7 +855,7 @@ class Kohana_ORM extends Model implements serializable {
 	 * @param  string $target_path Target model to bind to
 	 * @return ORM
 	 */
-	public function with($target_path)
+	public function with($target_path, $manual_select = FALSE)
 	{
 		if (isset($this->_with_applied[$target_path]))
 		{
@@ -910,7 +916,11 @@ class Kohana_ORM extends Model implements serializable {
 			$alias = $target_path.':'.$column;
 
 			// Add the prefix so that load_result can determine the relationship
-			$this->select(array($name, $alias));
+            // Fateak - Rollo
+            if (! $manual_select)
+            {
+			    $this->auto_select(array($name, $alias));
+            }
 		}
 
 		if (isset($parent->_belongs_to[$target_alias]))
@@ -1056,7 +1066,10 @@ class Kohana_ORM extends Model implements serializable {
 		}
 
 		// Select all columns by default
-		$this->_db_builder->select_array($this->_build_select());
+        if (! $this->_select_manual)
+        {
+		    $this->_db_builder->select_array($this->_build_select());
+        }
 
 		if ( ! isset($this->_db_applied['order_by']) AND ! empty($this->_sorting))
 		{
@@ -2064,6 +2077,28 @@ class Kohana_ORM extends Model implements serializable {
 	 * @return  $this
 	 */
 	public function select($columns = NULL)
+	{
+        $this->_select_manual = TRUE;
+
+		$columns = func_get_args();
+
+		// Add pending database call which is executed after query type is determined
+		$this->_db_pending[] = array(
+			'name' => 'select',
+			'args' => $columns,
+		);
+
+		return $this;
+	}
+
+	/**
+	 * Choose the columns to select from.
+	 *
+	 * @param   mixed  $columns  column name or array($column, $alias) or object
+	 * @param   ...
+	 * @return  $this
+	 */
+	public function auto_select($columns = NULL)
 	{
 		$columns = func_get_args();
 

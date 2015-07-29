@@ -72,7 +72,7 @@ class Fateak_FOptimizer
 
                         $condition = preg_replace('/= ([\S]+)/', '= @', $condition);
                         $condition = preg_replace('/LIKE ([\S]+)/', 'LIKE @', $condition);
-                        $condition = preg_replace('/IN (\([\S]+\))/', 'LIKE @', $condition);
+                        $condition = preg_replace('/IN (\([\S ]+\))/', 'IN @', $condition);
 
                         switch ($sql_type)
                         {
