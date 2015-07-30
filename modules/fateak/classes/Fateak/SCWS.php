@@ -27,7 +27,15 @@ class Fateak_SCWS
 
             foreach ($extra_dicts as $dict)
             {
-                $so->add_dict($dict);
+                if (strstr($dict, MODPATH))
+                {
+                    $so->add_dict($dict);
+                }
+                else
+                {
+                    $dict_path = MODPATH . $dict . DS . 'data' . DS . 'scws' . DS . 'dict.utf8.xdb';
+                    $so->add_dict($dict_path);
+                }
             }
 
             register_shutdown_function(array('SCWS', 'release'));
@@ -36,6 +44,18 @@ class Fateak_SCWS
         }
             
         return self::$scws;
+    }
+
+    public static function combine($words)
+    {
+        $result = '';
+
+        foreach ($words as $word)
+        {
+            $result .= $word['word'] . " ";
+        }
+
+        return trim($result);
     }
 
     /**

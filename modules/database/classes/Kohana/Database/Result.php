@@ -359,4 +359,12 @@ abstract class Kohana_Database_Result implements Countable, Iterator, SeekableIt
             return $stuff;
         }
 
+        /**
+         * Fateak - Rollo
+         */
+        public function get_result()
+        {
+            return $this->_result;
+        }
+
 } // End Database_Result

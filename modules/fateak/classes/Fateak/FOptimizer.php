@@ -71,8 +71,9 @@ class Fateak_FOptimizer
                         list($main, $condition) = explode('WHERE', $name);
 
                         $condition = preg_replace('/= ([\S]+)/', '= @', $condition);
-                        $condition = preg_replace('/LIKE ([\S]+)/', 'LIKE @', $condition);
+                        $condition = preg_replace('/LIKE ([\S]+\%\')/', 'LIKE @', $condition);
                         $condition = preg_replace('/IN (\([\S ]+\))/', 'IN @', $condition);
+                        $condition = preg_replace('/AGAINST (\([\S ]+\))/', 'AGAINST @', $condition);
 
                         switch ($sql_type)
                         {
