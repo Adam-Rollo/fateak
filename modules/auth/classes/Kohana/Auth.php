@@ -197,19 +197,19 @@ abstract class Kohana_Auth {
 		return hash_hmac($this->_config['hash_method'], $str, $this->_config['hash_key']);
 	}
 
-	protected function complete_login($user)
-	{
-		// Regenerate session_id
-		$this->_session->regenerate();
+    protected function complete_login($user)
+    {
+        // Regenerate session_id
+        $this->_session->regenerate();
 
-		// Store username in session
-		$this->_session->set($this->_config['session_key'], $user);
+        // Store username in session
+        $this->_session->set($this->_config['session_key'], $user);
 
-		// Store roles in session
+        // Store roles in session
         $roles = $user->roles->find_all()->as_array();
-		$this->_session->set($this->_config['roles_session_key'], $roles);
+        $this->_session->set($this->_config['roles_session_key'], $roles);
 
-		// Store permissions in session
+        // Store permissions in session
         $permissions = array();
         foreach ($roles as $role)
         {
@@ -223,13 +223,13 @@ abstract class Kohana_Auth {
                 $permission_name = $p['permission'];
 
                 if (! isset($permissions[$permission_name]))
-                    $permissions[$permission_name] = self::ALLOW;
+                    $permissions[$permission_name] = ACL::ALLOW;
             }
         }
 
-		$this->_session->set($this->_config['permissions_session_key'], $permissions);
+        $this->_session->set($this->_config['permissions_session_key'], $permissions);
 
-		return TRUE;
-	}
+        return TRUE;
+    }
 
 } // End Auth

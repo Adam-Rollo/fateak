@@ -191,9 +191,10 @@ class Kohana_ORM extends Model implements serializable {
 
 	/**
 	 * Model configuration, reload on wakeup?
+     * Fateak Rollo make it false
 	 * @var bool
 	 */
-	protected $_reload_on_wakeup = TRUE;
+	protected $_reload_on_wakeup = FALSE;
 
 	/**
 	 * Database Object
