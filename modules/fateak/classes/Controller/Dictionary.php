@@ -22,7 +22,7 @@ class Controller_Dictionary extends Controller_Fate
 
         foreach ($modules as $name => $path)
         {
-            if ($this->find_dic($path))
+            if ($this->find_dic($name))
             {
                 $dic_modules[$name] = $name;
             }
@@ -33,7 +33,7 @@ class Controller_Dictionary extends Controller_Fate
 
         if ($current_module != '0')
         {
-            $current_path = $this->find_dic($modules[$current_module]);
+            $current_path = $this->find_dic($current_module);
             $txt = $current_path . 'dict.utf8.txt';
             $xdb = $current_path . 'dict.utf8.xdb';
 
@@ -76,9 +76,9 @@ class Controller_Dictionary extends Controller_Fate
         $this->response->body($view);
     }
 
-    protected function find_dic($module_path)
+    protected function find_dic($module)
     {
-        $path = $module_path . 'data' . DS . 'scws' . DS;
+        $path = APPPATH . 'dicts' . DS . $module . DS;
 
         if (is_file($path . 'dict.utf8.txt'))
         {
@@ -95,10 +95,10 @@ class Controller_Dictionary extends Controller_Fate
         $word = $this->request->post('word');
         $module = $this->request->post('module');
 
-        $path = $this->find_dic(MODPATH . $module . DS);
+        $path = $this->find_dic($module);
         $txt = $path . 'dict.utf8.txt';
 
-        $word_info = $word . "\t10.0\t10.0\tn";
+        $word_info = $word . "\t10.0\t10.0\tn\t\n";
 
         if (! is_writable($txt))
         {
@@ -121,9 +121,14 @@ class Controller_Dictionary extends Controller_Fate
     {
         $module = $this->request->post('module');
 
-        $path = $this->find_dic(MODPATH . $module . DS);
+        $path = $this->find_dic($module);
         $txt = $path . 'dict.utf8.txt';
         $xdb_file = $path . 'dict.utf8.xdb';
+
+        if (is_file($xdb_file))
+        {
+            unlink($xdb_file);
+        }
 
         if (! is_writable($path) || ! is_writable($path))
         {
@@ -132,6 +137,8 @@ class Controller_Dictionary extends Controller_Fate
             $this->response->body($this->ajax->build_result());
             return;
         }
+
+        mb_internal_encoding('UTF-8');
 
         $fd = fopen($txt, 'r');
         $xdb = new XTreeDB;
@@ -157,11 +164,23 @@ class Controller_Dictionary extends Controller_Fate
             $rec[$k][$word]['idf'] = $idf;
             $rec[$k][$word]['attr'] = $attr;
 
+        
+            $len = mb_strlen($word);
+            while ($len > 2)
+            {
+                $len--;
+                $temp = mb_substr($word, 0, $len);
+                if (!isset($rec[$k][$temp]))
+                {
+                    $total++;
+                    $rec[$k][$temp] = array();
+                }
+                $rec[$k][$temp]['part'] = 1;
+            }
         }
 
         fclose($fd);
 
-        // load ok & try to save it to DBM
         for ($k = 0; $k < 0x40; $k++)
         {
             if (!isset($rec[$k])) continue;
@@ -169,12 +188,12 @@ class Controller_Dictionary extends Controller_Fate
             foreach ($rec[$k] as $w => $v)
             {
                 $flag = (isset($v['tf']) ? 0x01 : 0);
-                $data = pack('ffCa3', $v['tf'], $v['idf'], $flag, $v['attr']);
+                if (isset($v['part'])) $flag |= 0x02;
+                $data = @pack('ffCa3', $v['tf'], $v['idf'], $flag, $v['attr']);
                 $xdb->Put($w, $data);
                 $cnt++;
             }
         }
-
         $xdb->Optimize();
         $xdb->Close();
 

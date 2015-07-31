@@ -59,7 +59,7 @@ class Fateak_User
 
             self::$_current_user = new User(array('base' => $base_info), $extra_info);
 
-            $roles = ACL::get_user_roles($base_info);
+            $roles = self::get_user_roles();
 
             foreach ($roles as $role)
             {
@@ -67,7 +67,7 @@ class Fateak_User
 
             }
 
-            self::$_current_user->_permissions = ACL::get_user_permissions($base_info);
+            self::$_current_user->_permissions = self::get_user_permissions();
 
         }
         else
@@ -183,6 +183,44 @@ class Fateak_User
         }
 
         return $roles;
+    }
+
+    /**
+     * Get all roles for user
+     * From ACL From Session
+     *
+     * @param   Model_User  $user  User object
+     * @return  array  All roles for user
+     */
+    public static function get_user_roles(Model_User $user = NULL)
+    {
+        if (is_null($user))
+        {
+            $roles = Auth::instance()->get_roles();
+        }
+        else
+        {
+            $roles = ACL::get_user_roles($user);   
+        }
+
+        return $roles;
+    }
+
+    /**
+     * Get all user's permission
+     */
+    public static function get_user_permissions(Model_User $user = NULL)
+    {
+        if (is_null($user))
+        {
+            $permissions = Auth::instance()->get_permissions();
+        }
+        else
+        {
+            $permissions = ACL::get_user_permissions($user);
+        }
+
+        return $permissions;
     }
 
 }

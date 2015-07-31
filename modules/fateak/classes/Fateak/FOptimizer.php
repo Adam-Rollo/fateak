@@ -78,6 +78,7 @@ class Fateak_FOptimizer
                         switch ($sql_type)
                         {
                             case 'SELECT':
+                                $main = preg_replace('/AGAINST (\([\S ]+?\))/', 'AGAINST @', $main);
                                 $condition = preg_replace('/OFFSET ([0-9]+)/', 'OFFSET @', $condition);
                                 break;
                             case 'INSERT':

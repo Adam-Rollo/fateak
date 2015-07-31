@@ -8,6 +8,8 @@ return array(
 	'lifetime'     => 1209600,
 	'session_type' => 'redis',
 	'session_key'  => 'auth_user',
+	'roles_session_key'  => 'auth_user_roles',
+	'permissions_session_key'  => 'auth_user_permissions',
 
 	// Username/password combinations for the Auth File driver
 	'users' => array(

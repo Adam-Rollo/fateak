@@ -27,13 +27,13 @@ class Fateak_SCWS
 
             foreach ($extra_dicts as $dict)
             {
-                if (strstr($dict, MODPATH))
+                if (strstr($dict, APPPATH))
                 {
                     $so->add_dict($dict);
                 }
                 else
                 {
-                    $dict_path = MODPATH . $dict . DS . 'data' . DS . 'scws' . DS . 'dict.utf8.xdb';
+                    $dict_path = APPPATH . 'dicts' . DS . $dict . DS . 'dict.utf8.xdb';
                     $so->add_dict($dict_path);
                 }
             }
@@ -56,6 +56,68 @@ class Fateak_SCWS
         }
 
         return trim($result);
+    }
+
+    public static function split_more($words)
+    {
+        $keywords = explode(' ', $words);
+
+        $so = self::instance(array('material'));
+
+        $words_result = array();
+
+        foreach ($keywords as $keyword)
+        {
+            preg_match_all('/[0-9a-zA-Z]+/', $keyword, $match);
+
+            $so->send_text($keyword);
+
+            $words = $so->get_tops(5);
+
+            if (empty($words))
+            {
+                $words = $so->get_result();
+            }
+
+            $keyword = self::combine($words);
+            $words_result[] = $keyword;
+
+            if (! empty($match[0]))
+            {
+                $words_result[] = implode(' ', $match[0]);    
+            }
+        }
+
+        return implode(' ', $words_result);
+    }
+
+    public static function compile($words)
+    {
+        $keywords = explode(' ', $words);
+
+        $so = self::instance(array('material'));
+
+        $words_result = array();
+
+        foreach ($keywords as $keyword)
+        {
+            preg_match_all('/[0-9a-zA-Z]+/', $keyword, $match);
+
+            $so->send_text($keyword);
+
+            $words = $so->get_result();
+
+            $keyword = self::combine($words);
+
+            $words_result[] = $keyword;
+
+            if (! empty($match[0]))
+            {
+                $words_result[] = implode(' ', $match[0]);    
+            }
+        }
+
+        return implode(' ', $words_result);
     }
 
     /**

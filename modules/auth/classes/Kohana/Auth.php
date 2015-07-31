@@ -77,6 +77,30 @@ abstract class Kohana_Auth {
 	}
 
 	/**
+	 * Gets the role of current user from the session.
+	 * Returns NULL if no user is currently logged in.
+	 *
+	 * @param   mixed  $default  Default value to return if the user is currently not logged in.
+	 * @return  mixed
+	 */
+	public function get_roles($default = NULL)
+	{
+		return $this->_session->get($this->_config['roles_session_key'], $default);
+	}
+
+	/**
+	 * Gets the permissions of current user from the session.
+	 * Returns NULL if no user is currently logged in.
+	 *
+	 * @param   mixed  $default  Default value to return if the user is currently not logged in.
+	 * @return  mixed
+	 */
+	public function get_permissions($default = NULL)
+	{
+		return $this->_session->get($this->_config['permissions_session_key'], $default);
+	}
+
+	/**
 	 * Attempt to log in a user by using an ORM object and plain-text password.
 	 *
 	 * @param   string   $username  Username to log in
@@ -180,6 +204,30 @@ abstract class Kohana_Auth {
 
 		// Store username in session
 		$this->_session->set($this->_config['session_key'], $user);
+
+		// Store roles in session
+        $roles = $user->roles->find_all()->as_array();
+		$this->_session->set($this->_config['roles_session_key'], $roles);
+
+		// Store permissions in session
+        $permissions = array();
+        foreach ($roles as $role)
+        {
+            $result = DB::select('permission')
+                ->from('permissions')
+                ->where('rid', '=', $role['id'])
+                ->execute();
+
+            foreach ($result as $p)
+            {
+                $permission_name = $p['permission'];
+
+                if (! isset($permissions[$permission_name]))
+                    $permissions[$permission_name] = self::ALLOW;
+            }
+        }
+
+		$this->_session->set($this->_config['permissions_session_key'], $permissions);
 
 		return TRUE;
 	}
