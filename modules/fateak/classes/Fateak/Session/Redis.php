@@ -61,33 +61,28 @@ class Fateak_Session_Redis extends Session
      */
     protected function _read($id = NULL)
     {
-        if ($id OR $id = Cookie::get($this->_name))
+        try
         {
-            $session_key = $this->_table_name . ':' . $id;
-            
-            $usual_ip = $this->_redis->hGet($session_key, 'ip');
-
-            if ( $usual_ip !== FALSE )
+            if ($id OR $id = Cookie::get($this->_name))
             {
-                if ( $usual_ip == Request::$client_ip )
+                $session_key = $this->_table_name . ':' . $id;
+
+                $this->_session_id = $id;
+
+                if ($this->_expire())
                 {
-                    $this->_session_id = $id;
+                    Message::alert(__('Your session has benn expired. Please login again.'));
 
-                    if ($this->_expire())
-                    {
-                        Message::alert(__('Your session has benn expired. Please login again.'));
-                        throw new Exception_Session(__('Your session has benn expired. Please login again.'));
-                    }
-
-                    return $this->_redis->hGet($session_key, 'content');
+                    throw new Exception_Session(__('Your session has benn expired. Please login again.'));
                 }
-                else 
-                {
-                    $this->destroy();
 
-                    throw new Exception_Session(__('You are logging in an unusual place. Please login again for safe.'));
-                }
+                return $this->_redis->hGet($session_key, 'content');
+
             }
+        }
+        catch (Exception $e)
+        {
+            Log::debug("Session Error:" . $e->getLine() . " : " . $e->getMessage());
         }
 
         // Create a new session id
@@ -109,9 +104,9 @@ class Fateak_Session_Redis extends Session
             $id = str_replace('.', '-', uniqid(NULL, TRUE));
             $session_id = $this->_table_name . ":" . $id;
 
-            $usual_ip = $this->_redis->hGet($session_id, 'ip');
+            $usual_ips = $this->_redis->hGet($session_id, 'ips');
 
-        } while ($usual_ip !== FALSE);
+        } while ($usual_ips !== FALSE);
 
         $this->_session_id = $id;
     }
@@ -125,7 +120,6 @@ class Fateak_Session_Redis extends Session
     {
         $session_key = $this->_table_name . ":" . $this->_session_id;
 
-        $this->_redis->hSet($session_key, 'ip', Request::$client_ip);        
         $this->_redis->hSet($session_key, 'content', $this->__toString());        
         $this->_redis->hSet($session_key, 'last_active', $this->_data['last_active']);        
         $this->_redis->setTimeout($session_key, $this->_lifetime);        

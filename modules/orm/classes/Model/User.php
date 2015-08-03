@@ -15,6 +15,7 @@ class Model_User extends Model_Auth_User
         'language' => array('type' => 'string'),
         'logins' => array('type' => 'int'),
         'last_login' => array('type' => 'int'),
+        'ips' => array('type' => 'string'),
     );
 
     /**
