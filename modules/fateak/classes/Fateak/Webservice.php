@@ -47,7 +47,8 @@ abstract class Fateak_Webservice {
         catch (Exception $e) 
         {
             $error = $e->getMessage();
-            $wr = new Webservice_Result(Webservice_Result::FAILURE, $error);
+            $line = $e->getLine();
+            $wr = new Webservice_Result(Webservice_Result::FAILURE, $line . " : " . $error);
         }
 
         return $wr;

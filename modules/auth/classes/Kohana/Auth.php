@@ -96,9 +96,11 @@ abstract class Kohana_Auth {
             }
             else
             {
-                $this->_session->destroy();
+                $this->logout();
 
-                throw new Kohana_Exception(__('You are logging in an unusual place. Please login again for safe.'));
+                Message::set(Message::WARN, __('You are logging in an unusual place. Please login again for safe.'));
+
+                throw HTTP_Exception::factory(403, 'You are logging in an unusual place. Please login again for safe.');
             }
         }
 
