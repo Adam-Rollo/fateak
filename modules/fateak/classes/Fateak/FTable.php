@@ -27,9 +27,9 @@ class Fateak_FTable
     {
         $this->_is_script = isset($options['script']) ? $options['script'] : FALSE;
 
-
         $offset = ($params['page'] - 1) * $params['rowsPerPage'];
-        if ($params['keyword'])
+
+        if ($params['keyword'] != '')
         {
             $keytype_type = $model->column_info($params['keytype']);
 
@@ -43,6 +43,7 @@ class Fateak_FTable
                 $model->where($params['keytype'], '=', $params['keyword']);
             }
         }
+
         $this->_total_numbers = $model->reset(FALSE)->count_all();
 
         if ($this->_is_script)
@@ -138,14 +139,38 @@ class Fateak_FTable
                     $btn = $btn['text'];
                 }
 
-                preg_match_all('/\[:([a-zA-Z0-9_]+):\]/', $btn, $matches);
+                preg_match_all('/\[:([a-zA-Z0-9_:]+):\]/', $btn, $matches);
 
                 foreach ($matches[1] as $k => $column)
                 {
-                    if (isset($row[$column]))
+                    if (strstr($column, ':'))
                     {
-                        $btn = str_replace($matches[0][$k], $row[$column], $btn);
+                        $var_iterator = explode(':', $column);
+                        $value = & $row[$var_iterator[0]];
+                        unset($var_iterator[0]);
+
+                        foreach($var_iterator as $i)
+                        {
+                            if (isset($value[$i]))
+                            {
+                                $value = & $value[$i];
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        $btn = str_replace($matches[0][$k], $value, $btn);
                         $row[$bn] = $btn;
+                    }
+                    else
+                    {
+                        if (isset($row[$column]))
+                        {
+                            $btn = str_replace($matches[0][$k], $row[$column], $btn);
+                            $row[$bn] = $btn;
+                        }
                     }
                 }
             }

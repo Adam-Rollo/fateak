@@ -790,14 +790,6 @@ class Kohana_ORM extends Model implements serializable {
      */
     public function values(array $values, array $expected = NULL)
     {
-        if (isset($values[$this->_primary_key]))
-        {
-            // Flag as loaded and valid
-            $this->_loaded = $this->_valid = TRUE;
-
-            // Store primary key
-            $this->_primary_key_value = $values[$this->_primary_key];
-        }
 
         // Default to expecting everything except the primary key
         if ($expected === NULL)
@@ -2542,6 +2534,20 @@ class Kohana_ORM extends Model implements serializable {
         {
             return $this->_table_columns[$column];
         }
+    }
+
+    /**
+     * Fateak - Rollo
+     */
+    public function load_by_pk($id)
+    {
+        // Flag as loaded and valid
+        $this->_loaded = $this->_valid = TRUE;
+
+        // Store primary key
+        $this->_primary_key_value = $id;
+
+        return $this;
     }
 
 } // End ORM

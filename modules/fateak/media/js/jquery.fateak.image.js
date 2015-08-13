@@ -203,13 +203,13 @@
             + "<img style='height:100px;max-width:" + options.displayItemWidth + "px' src='" + src + "' />"
             + "<div class='fimg-item-board' ><span>&times;</span></div>"
             + "</div>";
-        $("#preupimage-" + options.fid).append(imgItem);
+        $("#preupimage-" + FSlash(options.fid)).append(imgItem);
         $(".fimg-item[img='" + src + "']").FUImgManager();
     }
 
     var startCrop = function(options, image) {
 
-        $("form[upcf='"+options.fid+"']").find(".filesrc").val(image);
+        $("form[upcf='" + options.fid + "']").find(".filesrc").val(image);
 
         cropConfig = {onSelect: function(c){
             cropimage(options, c);
@@ -255,8 +255,8 @@
     }
 
     var initUForm = function(imgName) {
-        var imgForm = $("form[upf='"+imgName+"']");
-        var cropForm = $("form[upcf='"+imgName+"']");
+        var imgForm = $("form[upf='" + imgName + "']");
+        var cropForm = $("form[upcf='" + imgName + "']");
         imgForm.find(".croparea").html("");
         imgForm.find(".fimageuploader").val("");
         cropForm.find(".filesrc").val("");
@@ -279,6 +279,11 @@
             imgValues = delArrayItem(imgValues, delImage.attr('img'));
             imgInput.val(arr2json(imgValues));
             delImage.remove();
+        });
+
+        $(this).find("img").click(function(){
+            var img_src = $(this).attr('src');
+            window.open(img_src);
         });
 
         var image_name = $(this).parent().attr('imgarea');

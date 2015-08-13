@@ -181,3 +181,14 @@ function delArrayItem(arr, item)
 
 })(jQuery);
 
+
+/* ========================================================================
+    jQuery selector add slashes 
+   ===================================================================== */
+
+var FSlash = function (str) {
+    str = str.replace(/\[/g, "\\[");
+    str = str.replace(/\]/g, "\\]");
+    str = str.replace(/\//g, "\\/");
+    return str;
+}
