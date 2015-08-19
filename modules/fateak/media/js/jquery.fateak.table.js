@@ -160,7 +160,7 @@
                 } else {
                     var td_html = data[i][table_options['columns'][j]];
                 }
-                tr += "<td>" + td_html + "</td>"
+                tr += "<td class='" + table_options['columns'][j] + "'><span>" + td_html + "</span></td>"
             }
             html += tr + "</tr>";
         }

@@ -692,4 +692,19 @@ class Kohana_Text {
 		return FALSE;
 	}
 
+	/**
+	 * Encode special characters in a plain-text string for display as HTML.
+	 *
+	 * Also validates strings as UTF-8 to prevent cross site scripting attacks
+	 * on Internet Explorer 6.
+	 *
+	 * @param  string  $text  The text to be checked or processed.
+	 *
+	 * @return  string
+	 */
+	public static function plain($text)
+	{
+		return HTML::chars($text);
+	}
+
 }
