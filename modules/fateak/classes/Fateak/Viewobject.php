@@ -50,4 +50,21 @@ class Fateak_Viewobject implements arrayaccess
     {
         return isset($this->container[$offset]) ? $this->container[$offset] : null;
     }
+
+    public static function inner_arr($arr, $is_model = false)
+    {
+        $result = array();
+
+        foreach ($arr as $k => $a)
+        {
+            if ($is_model) 
+            {
+                $a = $a->as_array();
+            }
+
+            $result[$k] = new Viewobject($a);
+        }
+
+        return $result;
+    }
 }

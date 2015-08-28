@@ -58,7 +58,7 @@ abstract class Kohana_Auth {
         $this->_session = Session::instance($this->_config['session_type']);
     }
 
-    abstract protected function _login($username, $password, $remember);
+    abstract protected function _login($username, $password, $remember, $user_model);
 
     abstract public function password($username);
 
@@ -139,12 +139,12 @@ abstract class Kohana_Auth {
      * @param   boolean  $remember  Enable autologin
      * @return  boolean
      */
-    public function login($username, $password, $remember = FALSE)
+    public function login($username, $password, $remember = FALSE, $user_model = 'User')
     {
         if (empty($password))
             return FALSE;
 
-        return $this->_login($username, $password, $remember);
+        return $this->_login($username, $password, $remember, $user_model);
     }
 
     /**

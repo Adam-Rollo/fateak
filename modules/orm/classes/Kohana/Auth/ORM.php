@@ -33,9 +33,9 @@ class Kohana_Auth_ORM extends Auth {
             {
                 // Get all the roles
                 $roles = ORM::factory('Role')
-                            ->where('name', 'IN', $role)
-                            ->find_all()
-                            ->as_array(NULL, 'id');
+                    ->where('name', 'IN', $role)
+                    ->find_all()
+                    ->as_array(NULL, 'id');
 
                 // Make sure all the roles are valid ones
                 if (count($roles) !== count($role))
@@ -69,14 +69,14 @@ class Kohana_Auth_ORM extends Auth {
      * @param   boolean  $remember  enable autologin
      * @return  boolean
      */
-    protected function _login($user, $password, $remember)
+    protected function _login($user, $password, $remember, $user_model = 'User')
     {
         if ( ! is_object($user))
         {
             $username = $user;
 
             // Load the user
-            $user = ORM::factory('User');
+            $user = ORM::factory($user_model);
             $user->where($user->unique_key($username), '=', $username)->find();
         }
 
@@ -93,15 +93,15 @@ class Kohana_Auth_ORM extends Auth {
             {
                 // Token data
                 $data = array(
-                    'user_id'    => $user->pk(),
-                    'expires'    => time() + $this->_config['lifetime'],
-                    'user_agent' => sha1(Request::$user_agent),
-                );
+                        'user_id'    => $user->pk(),
+                        'expires'    => time() + $this->_config['lifetime'],
+                        'user_agent' => sha1(Request::$user_agent),
+                        );
 
                 // Create a new autologin token
-                $token = ORM::factory('User_Token')
-                            ->values($data)
-                            ->create();
+                $token = ORM::factory($user_model . '_Token')
+                    ->values($data)
+                    ->create();
 
                 // Set the autologin cookie
                 Cookie::set('authautologin', $token->token, $this->_config['lifetime']);
@@ -117,14 +117,14 @@ class Kohana_Auth_ORM extends Auth {
         return FALSE;
     }
 
-        /**
-         * Fateak - Rollo
-         * Login from APP
-         * Token contains: email, telephone, login time, device, ip, token.
-         */
+    /**
+     * Fateak - Rollo
+     * Login from APP
+     * Token contains: email, telephone, login time, device, ip, token.
+     */
     protected function _login_by_app($user, $password)
-        {
-                if ( ! is_object($user))
+    {
+        if ( ! is_object($user))
         {
             $username = $user;
 
@@ -142,34 +142,34 @@ class Kohana_Auth_ORM extends Auth {
         // If the passwords match, perform a login
         if ($user->has('roles', ORM::factory('Role', array('name' => 'login'))) AND $user->password === $password)
         {
-                        // Load User Login info
-                        $redis = FRedis::instance();
-                        $token_key = "auth:token:" . $user->id;
-                        $token_text = $redis->hget($token_key, 'token');
+            // Load User Login info
+            $redis = FRedis::instance();
+            $token_key = "auth:token:" . $user->id;
+            $token_text = $redis->hget($token_key, 'token');
 
-                        if ($token_text != FALSE)
-                        {
-                            $invalid_key = "token:invalid:" . $user->id;
-                            $redis->sadd($invalid_key, $token_text);
-                        }
+            if ($token_text != FALSE)
+            {
+                $invalid_key = "token:invalid:" . $user->id;
+                $redis->sadd($invalid_key, $token_text);
+            }
 
-                        $new_token = sha1(uniqid(mt_rand(), TRUE)) . md5(uniqid(mt_rand(), TRUE));
+            $new_token = sha1(uniqid(mt_rand(), TRUE)) . md5(uniqid(mt_rand(), TRUE));
 
-                        $user_information = array(
-                                'id' => $user->id,
-                                'email' => $user->email, 
-                                'telephone' => $user->username,
-                                'login_tile' => time(),
-                                'device' => Request::$user_agent,
-                                'ip' => Request::$client_ip,
-                                'token' => $new_token,
-                        );
+            $user_information = array(
+                    'id' => $user->id,
+                    'email' => $user->email, 
+                    'telephone' => $user->username,
+                    'login_tile' => time(),
+                    'device' => Request::$user_agent,
+                    'ip' => Request::$client_ip,
+                    'token' => $new_token,
+                    );
 
-                        $redis->hMset($token_key, $user_information);
+            $redis->hMset($token_key, $user_information);
 
 
             // Finish the login
-                $user->complete_login();
+            $user->complete_login();
 
             return $user_information;
         }
@@ -177,7 +177,7 @@ class Kohana_Auth_ORM extends Auth {
         // Login failed
         return FALSE;
 
-        }
+    }
 
     /**
      * Forces a user to be logged in, without specifying a password.
@@ -186,14 +186,14 @@ class Kohana_Auth_ORM extends Auth {
      * @param   boolean  $mark_session_as_forced  mark the session as forced
      * @return  boolean
      */
-    public function force_login($user, $mark_session_as_forced = FALSE)
+    public function force_login($user, $mark_session_as_forced = FALSE, $user_model = 'User')
     {
         if ( ! is_object($user))
         {
             $username = $user;
 
             // Load the user
-            $user = ORM::factory('User');
+            $user = ORM::factory($user_model);
             $user->where($user->unique_key($username), '=', $username)->find();
         }
 
@@ -212,12 +212,12 @@ class Kohana_Auth_ORM extends Auth {
      *
      * @return  mixed
      */
-    public function auto_login()
+    public function auto_login($user_model = 'User')
     {
         if ($token = Cookie::get('authautologin'))
         {
             // Load the token and user
-            $token = ORM::factory('User_Token', array('token' => $token));
+            $token = ORM::factory($user_model . '_Token', array('token' => $token));
 
             if ($token->loaded() AND $token->user->loaded())
             {
@@ -272,7 +272,7 @@ class Kohana_Auth_ORM extends Auth {
      * @param   boolean  $logout_all  remove all tokens for user
      * @return  boolean
      */
-    public function logout($destroy = FALSE, $logout_all = FALSE)
+    public function logout($destroy = FALSE, $logout_all = FALSE, $user_model = 'User')
     {
         // Set by force_login()
         $this->_session->delete('auth_forced');
@@ -283,13 +283,13 @@ class Kohana_Auth_ORM extends Auth {
             Cookie::delete('authautologin');
 
             // Clear the autologin token from the database
-            $token = ORM::factory('User_Token', array('token' => $token));
+            $token = ORM::factory($user_model . '_Token', array('token' => $token));
 
             if ($token->loaded() AND $logout_all)
             {
                 // Delete all user tokens. This isn't the most elegant solution but does the job
-                $tokens = ORM::factory('User_Token')->where('user_id','=',$token->user_id)->find_all();
-                
+                $tokens = ORM::factory($user_model . '_Token')->where('user_id','=',$token->user_id)->find_all();
+
                 foreach ($tokens as $_token)
                 {
                     $_token->delete();
@@ -310,14 +310,14 @@ class Kohana_Auth_ORM extends Auth {
      * @param   mixed   $user  username string, or user ORM object
      * @return  string
      */
-    public function password($user)
+    public function password($user, $user_model = 'User')
     {
         if ( ! is_object($user))
         {
             $username = $user;
 
             // Load the user
-            $user = ORM::factory('User');
+            $user = ORM::factory($user_model);
             $user->where($user->unique_key($username), '=', $username)->find();
         }
 
