@@ -1,10 +1,15 @@
 .rows-per-page {width: 50px}
 
-.search-content-span {float: right}
+.search-content-span {}
 
-.search-btn {float: right}
+.search_area {float: right}
+.search_row {height: 30px}
 
-.search-type {float: right}
+.search-btn {}
+
+.search-type {height: 26px}
+
+.add_more_key {float: right}
 
 .fateak-pagination {margin: 10px auto}
 .fateak-pagination li {list-style:none; float: left; margin-left:-1px ;width: 30px;height:30px; border:1px solid #CCC;text-align:center; line-height:25px}

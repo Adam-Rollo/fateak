@@ -32,8 +32,18 @@
         current_params['page'] = container.parent().find(".table-page").val();
 
         current_params['rowsPerPage'] = parseInt(container.find(".rows-per-page").val());
-        current_params['keytype'] = container.find(".search-type").val();
-        current_params['keyword'] = container.find(".search-content").val();
+
+        var keytype = [];
+        container.find(".search-type").each(function(){
+            keytype.push($(this).val()); 
+        });
+        var keyword = [];
+        container.find(".search-content").each(function(){
+            keyword.push($(this).val()); 
+        });
+
+        current_params['keytype'] = keytype;
+        current_params['keyword'] = keyword;
         current_params['sort'] = container.parent().find(".table-sort").val();
         current_params['order'] = container.parent().find(".table-order").val();
 
@@ -60,7 +70,8 @@
         var table_options = table.data('options');
         var beforeHtml = "<div id='fateak-table-" + table_options['tid'] + "'>"
             + "<select class='rows-per-page'><option value='10'>10</option><option value='50'>50</option></select> " + table_options['i18n']['Rows/Page']
-            + "<span class='search-content-span'><input class='search-content' type='text' /></span><select class='search-type'>";
+            + "<div class='search_area'><div class='search_row searcher_1'><input class='add_more_key' type='button' value='更多条件' />"
+            + "<select rid='searcher_1' class='search-type searcher_1'>";
         for (var i in table_options['search']) {
             beforeHtml += "<option stype='input' value='" + i + "'>" + table_options['search'][i] + "</option>"
         }
@@ -68,23 +79,49 @@
             beforeHtml += "<option stype='select' value='" + i + "'>" + table_options['searchSelect'][i]['text'] + "</option>"
         }
         beforeHtml += "</select>" 
-            + "<input class='search-btn' type='button' value='"+ table_options['i18n']['Search'] +"' />"
+            + "<span class='search-content-span searcher_1'><input class='search-content searcher_1' type='text' /></span>"
+            + "<input class='search-btn' type='button' value='"+ table_options['i18n']['Search'] +"' /></div></div>"
             + "</div>";
         table.find("table").before(beforeHtml);
-        table.find('.search-type').change(function(){
-            searchWay = $(this).find('option:selected').attr('stype');
-            searchWayValue = $(this).val();
+
+        var switch_search_content = function(selector)
+        {
+            searchWay = $(selector).find('option:selected').attr('stype');
+            searchWayValue = $(selector).val();
+            var rid = $(selector).attr('rid');
             if (searchWay == 'input') {
-                table.find('.search-content-span').html("<input class='search-content' type='text' />"); 
+                table.find('.search-content-span.' + rid).html("<input class='search-content " + rid + "' type='text' />"); 
             } else {
-                var searchContent = "<select class='search-content'>";
+                var searchContent = "<select class='search-content " + rid + "'>";
                 for (var i in table_options['searchSelect'][searchWayValue]['options'])
                 {
                     searchContent += "<option value='"+i+"'>"+table_options['searchSelect'][searchWayValue]['options'][i]+"</option>";
                 }
                 searchContent += "</select>";
-                table.find('.search-content-span').html(searchContent);
+                table.find('.search-content-span.' + rid).html(searchContent);
             }
+        }
+
+        table.find('.search-type').change(function(){
+            switch_search_content(this);
+        });
+        table.find('.add_more_key').data('searcher_number', 1);
+        table.find('.add_more_key').click(function(){
+            var new_searcher_id = $(this).data('searcher_number');
+            new_searcher_id++;
+            $(this).data('searcher_number', new_searcher_id);
+            var new_searcher = "<div class='search_row searcher_" + new_searcher_id + "'>";
+            new_searcher += "<select rid='searcher_" + new_searcher_id + "' class='search-type searcher_" + new_searcher_id + "' >" + table.find('.search-type.searcher_1').html() + "</select>";
+            new_searcher += "<span class='search-content-span searcher_" + new_searcher_id + "'><input class='search-content searcher_" + new_searcher_id + "' type='text' /></span>";
+            new_searcher += "<input type='button' class='remove_searcher searcher_" + new_searcher_id + "' rid='searcher_" + new_searcher_id + "' value='×' /></div>";
+            table.find('.search_area') .append(new_searcher);
+            $(".search-type.searcher_" + new_searcher_id).change(function(){
+                switch_search_content(this);
+            });
+            $(".remove_searcher.searcher_" + new_searcher_id).click(function(){
+                var rid = $(this).attr('rid');
+                $("." + rid).remove();
+            });
         });
         table.find('.search-type').change();
 
@@ -112,8 +149,14 @@
 
         if (page > 0) {
             var rowsPerPage = parseInt(container.find(".rows-per-page").val());
-            var keytype = container.find(".search-type").val();
-            var keyword = container.find(".search-content").val();
+            var keytype = [];
+            container.find(".search-type").each(function(){
+                keytype.push($(this).val()); 
+            });
+            var keyword = [];
+            container.find(".search-content").each(function(){
+                keyword.push($(this).val()); 
+            });
             var sort = container.parent().find(".table-sort").val();
             var order = container.parent().find(".table-order").val();
         } else {
@@ -122,10 +165,29 @@
             container.parent().find(".table-page").val(page);
             var rowsPerPage = (initParams['rowsPerPage'] == undefined) ? parseInt(container.find(".rows-per-page").val()) : initParams['rowsPerPage'];
             container.find(".rows-per-page").val(rowsPerPage);
-            var keytype = (initParams['keytype'] == undefined) ? container.find(".search-type").val() : initParams['keytype'];
-            container.find(".search-type").val(keytype);
-            var keyword = (initParams['keyword'] == undefined) ? container.find(".search-content").val() : initParams['keyword'];
-            container.find(".search-content").val(keyword);
+            var keytype = [];
+            container.find(".search-type").each(function(){
+                keytype.push($(this).val()); 
+            });
+            var keyword = [];
+            container.find(".search-content").each(function(){
+                keyword.push($(this).val()); 
+            });
+
+            var keytype = (initParams['keytype'] == undefined) ? keytype : initParams['keytype'];
+            var keyword = (initParams['keyword'] == undefined) ? keyword : initParams['keyword'];
+            if (keytype.length > 1) {
+                for (var i = 1; i <= keytype.length; i++) {
+                    if (i > 1) {
+                        container.find('.add_more_key').click();
+                    }
+                    container.find(".search-type.searcher_" + i).val(keytype[i - 1]);
+                    container.find(".search-content.searcher_" + i).val(keyword[i - 1]);
+                }
+            } else {
+                container.find(".search-type").val(keytype);
+                container.find(".search-content").val(keyword);
+            }
             var sort = (initParams['sort'] == undefined) ? container.parent().find(".table-sort").val() : initParams['sort'];
             container.parent().find(".table-sort").val(sort);
             var order = (initParams['order'] == undefined) ? container.parent().find(".table-order").val() : initParams['order'];
@@ -210,7 +272,7 @@
         });
 
         table.find(".search-btn").click(function(){
-            var container = $(this).parent().parent();
+            var container = $(this).parent().parent().parent().parent();
             loadData(container, 1);
         });
 

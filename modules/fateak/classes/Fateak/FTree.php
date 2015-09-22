@@ -14,7 +14,7 @@ class Fateak_FTree
      */
     public function __construct(Model $model, $scp_id)
     {
-        $this->_model = $model->where('scp', '=', $scp_id)->order_by('lft', 'ASC');
+        $this->_model = $model->where('scp', '=', $scp_id)->where('active', '=', 1)->order_by('lft', 'ASC');
     }
 
     public function data()
@@ -78,7 +78,7 @@ class Fateak_FTree
 
             if (isset($child['children']))
             {
-                $html .= self::ul($child);
+                $html .= self::ul($child, $options);
             }
 
             $html .= "</li>";

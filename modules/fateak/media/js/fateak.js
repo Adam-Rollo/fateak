@@ -71,7 +71,13 @@ function obj2json(obj)
     var json = "{";
     var json_array = [];
     for (var i in obj) {
-       json_array.push('"' + i + '":"' + obj[i] + '"');
+        if (typeof(obj[i]) == 'object') {
+            obj[i] = obj2json(obj[i]);
+        } else {
+            obj[i] = '"' + obj[i] + '"';
+        }
+        
+        json_array.push('"' + i + '":' + obj[i] );
     }
     json += json_array.join(",") + "}";
 

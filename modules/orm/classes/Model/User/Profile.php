@@ -63,4 +63,22 @@ class Model_User_Profile extends ORM
 
 	    return $this->values($values, $expected)->update();
     }
+
+    public function get_name($id, $default = 'Unknown')
+    {
+        $this->select('id', 'name')
+            ->where('id', '=', $id)
+            ->find();
+
+        if ($this->loaded($this) && ($this->name != ''))
+        {
+            $user_name = $this->name;
+        }
+        else
+        {
+            $user_name = $default;
+        }
+
+        return $user_name;
+    }
 }

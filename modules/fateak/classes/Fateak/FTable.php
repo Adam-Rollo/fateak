@@ -29,18 +29,21 @@ class Fateak_FTable
 
         $offset = ($params['page'] - 1) * $params['rowsPerPage'];
 
-        if ($params['keyword'] != '')
+        foreach ($params['keyword'] as $k_offset => $keyword)
         {
-            $keytype_type = $model->column_info($params['keytype']);
+            if ($keyword != '')
+            {
+                $keytype_type = $model->column_info($params['keytype'][$k_offset]);
 
-            if ($keytype_type['type'] == 'string' && $options['fuzzy'])
-            {
-                // if processing become slow. delete "%" and use '='.
-                $model->where($params['keytype'], 'LIKE', '%'.$params['keyword'].'%');
-            }
-            else
-            {
-                $model->where($params['keytype'], '=', $params['keyword']);
+                if ($keytype_type['type'] == 'string' && $options['fuzzy'])
+                {
+                    // if processing become slow. delete "%" and use '='.
+                    $model->where($params['keytype'][$k_offset], 'LIKE', '%'.$keyword.'%');
+                }
+                else
+                {
+                    $model->where($params['keytype'][$k_offset], '=', $keyword);
+                }
             }
         }
 
