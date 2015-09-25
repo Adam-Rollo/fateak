@@ -46,7 +46,12 @@
         div.append(modal);
 
         div.find(".fm-save").click(function(){
-            div.find(".main-form").submit();        
+            var d_exist = div.find(".main-form").attr('class');
+            if (d_exist == undefined) {
+                div.find(".fm-close").click();
+            } else {
+                div.find(".main-form").submit();        
+            }
         });
     }
 

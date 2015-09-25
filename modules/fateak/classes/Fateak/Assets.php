@@ -20,6 +20,11 @@ class Fateak_Assets
     protected static $_body_js = array();
 
     /**
+     * cache
+     */
+    protected static $_versions = null;
+
+    /**
      * get all css store in $_all_css.
      */
     public static function all_css()
@@ -27,9 +32,13 @@ class Fateak_Assets
         uasort(self::$_all_css, array('self', 'sort_by_weight'));
 
         $css_html = "";
+        
+        $assets_versions = self::versions();
 
         foreach (self::$_all_css as $css) {
-            $css_html .= PHP_EOL.HTML::style($css['url']);
+            $css_url = $css['url'];
+            $version = isset($assets_versions[$css_url]) ? ('?ver=' . $assets_versions[$css_url]) : '';
+            $css_html .= PHP_EOL.HTML::style($css_url . $version);
         }
 
         return $css_html;
@@ -43,9 +52,13 @@ class Fateak_Assets
         uasort(self::$_head_js, array('self', 'sort_by_weight'));
 
         $js_html = "";
+        
+        $assets_versions = self::versions();
 
         foreach (self::$_head_js as $js) {
-            $js_html .= PHP_EOL.HTML::script($js['url']);
+            $js_url = $js['url'];
+            $version = isset($assets_versions[$js_url]) ? ('?ver=' . $assets_versions[$js_url]) : '';
+            $js_html .= PHP_EOL.HTML::script($js_url . $version);
         }
 
         return $js_html;
@@ -60,13 +73,29 @@ class Fateak_Assets
 
         $js_html = "";
 
+        $assets_versions = self::versions();
+
         foreach (self::$_body_js as $js) {
-            $js_html .= PHP_EOL.HTML::script($js['url']);
+            $js_url = $js['url'];
+            $version = isset($assets_versions[$js_url]) ? ('?ver=' . $assets_versions[$js_url]) : '';
+            $js_html .= PHP_EOL.HTML::script($js_url . $version);
         }
 
         return $js_html;
     }
 
+    /**
+     * version
+     */
+    protected static function versions()
+    {
+        if (is_null(self::$_versions))
+        {
+            self::$_versions = Kohana::$config->load('assets_versions');
+        }
+
+        return self::$_versions;
+    }
 
 
     /**
