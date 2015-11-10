@@ -182,10 +182,12 @@
                         container.find('.add_more_key').click();
                     }
                     container.find(".search-type.searcher_" + i).val(keytype[i - 1]);
+                    container.find(".search-type.searcher_" + i).change();
                     container.find(".search-content.searcher_" + i).val(keyword[i - 1]);
                 }
             } else {
                 container.find(".search-type").val(keytype);
+                container.find(".search-type").change();
                 container.find(".search-content").val(keyword);
             }
             var sort = (initParams['sort'] == undefined) ? container.parent().find(".table-sort").val() : initParams['sort'];

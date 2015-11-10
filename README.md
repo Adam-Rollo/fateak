@@ -22,6 +22,8 @@ https://github.com/hightman/scws
 陪伴了大多数PHPer好多年的老牌Excel导入导出软件
 https://github.com/PHPOffice/PHPExcel
 
+6) 使用了一些JS开源框架，由于框架内都有版权声明，这里不作赘述
+
 ## Fateak必须要安装如下模块
 
 1）PHPRedis

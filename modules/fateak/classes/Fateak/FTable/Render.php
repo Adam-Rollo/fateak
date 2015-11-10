@@ -43,4 +43,9 @@ class Fateak_FTable_Render
     {
         return date($format, $src);
     }
+
+    public static function exsit($src)
+    {
+        return ($src=='' || $src=='[]') ? '' : '有';
+    }
 }

@@ -24,7 +24,7 @@ class Fateak_PinYin
      */
     public function getFirstPY($chinese)
     {
-       $chinese = iconv('UTF-8', 'GBK', $chinese);
+       $chinese = mb_convert_encoding($chinese, 'GBK', 'UTF-8');
        $result = '' ;
        for ($i=0; $i<strlen($chinese); $i++) 
        {

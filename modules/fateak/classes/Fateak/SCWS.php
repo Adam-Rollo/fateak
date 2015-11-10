@@ -50,6 +50,11 @@ class Fateak_SCWS
     {
         $result = '';
 
+        if (! is_array($words))
+        {
+            return trim($words);
+        }
+
         foreach ($words as $word)
         {
             $result .= $word['word'] . " ";
