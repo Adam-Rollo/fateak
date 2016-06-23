@@ -41,7 +41,7 @@ abstract class Controller_Land extends Controller_Template
             $this->init_controller();
             return;
         }
-            
+        $this->title = 'Land';
         parent::before();
     }
 

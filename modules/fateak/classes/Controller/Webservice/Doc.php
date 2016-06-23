@@ -4,8 +4,15 @@
  */
 class Controller_Webservice_Doc extends Controller_Fate
 {
+    /**
+     * Browse API
+     *
+     * @internal fateak-action-acl
+     */
     public function action_index()
     {
+        ACL::required('controller_webservice_doc_action_index');
+
         $modules = Module::modules();
         unset($modules['auth']);unset($modules['cache']);unset($modules['database']);unset($modules['image']);unset($modules['minion']);unset($modules['unittest']);unset($modules['captcha']);
         $api_modules = array('0' => __('Please select a module'));

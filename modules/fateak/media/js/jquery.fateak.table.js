@@ -10,6 +10,7 @@
         search: {},
         searchSelect: {},
         initParams: {},
+        checkBox: false,
     };
      
     jQuery.fn.FTable = function(opt) {
@@ -137,6 +138,17 @@
         table.find("th[fclass='sortable']").each(function(){
             $(this).append("<i table='" + table_options['tid'] + "' class='f-sort-icon glyphicon glyphicon-sort'></i>");         
         });
+
+        // 表格内额外内容
+        if (table_options['checkBox']) {
+            table.find('thead tr').prepend('<th><input type="checkbox" class="check_all" /></th>');
+            table.find(".check_all").click(function(){
+                var is_checked = $(this).is(':checked');
+                table.find(".ftable_checkbox").each(function(){
+                        $(this).prop('checked', is_checked);
+                });
+            });
+        }
     }
 
     var loadData = function(table) {
@@ -196,7 +208,9 @@
             container.parent().find(".table-order").val(order);
         }
 
-        $.getJSON(table_options['dataURL'], {page:page,rowsPerPage:rowsPerPage,sort:sort,order:order,keytype:keytype,keyword:keyword}, function(result){
+
+        var timestamp_flag = Date.parse(new Date());
+        $.getJSON(table_options['dataURL'], {page:page,rowsPerPage:rowsPerPage,sort:sort,order:order,keytype:keytype,keyword:keyword,timestamp:timestamp_flag}, function(result){
             refreshData(table, result, page);
         });
     }
@@ -206,31 +220,44 @@
         var html = "";
         var data = result['data'];
         for (var i in data) {
-            var tr = "<tr>"
+            var tr = "<tr>";
+            if (table_options['checkBox']) {
+                tr += '<td><input type="checkbox" class="ftable_checkbox" value="' + td_get_content(data, i, table_options['checkBox']) + '" name="selected_' + table_options['checkBox'] + '[]" /></td>';
+            }
             for (var j in table_options['columns']) {
-                if (table_options['columns'][j].indexOf('.') > 0) {
-                    var column_value = table_options['columns'][j].split('.');
-                    var td_html = listIn(data[i][column_value[0]], column_value[0], column_value[1]);
-                } else if (table_options['columns'][j].indexOf(':') > 0) {
-                    var column_value = table_options['columns'][j].split(':');
-                    var td_html = objectIn(data[i][column_value[0]], column_value);
-                } else if (table_options['columns'][j].indexOf('~') > 0) {
-                    var all_values = table_options['columns'][j].split('~');
-                    var td_html = "";
-                    for (var v in all_values)
-                    {
-                        td_html += data[i][all_values[v]];
-                    }
-                } else {
-                    var td_html = data[i][table_options['columns'][j]];
-                }
-                tr += "<td class='" + table_options['columns'][j] + "'><span>" + td_html + "</span></td>"
+                td_html = td_get_content(data, i, table_options['columns'][j]);
+                tr += "<td class='" + table_options['columns'][j] + "'><span>" + td_html + "</span></td>";
             }
             html += tr + "</tr>";
         }
         table.find("tbody").html(html);
 
         setPaginator(table, page, result['total']);
+    }
+
+    var td_get_content = function(data, i, column) {
+        if (column.indexOf('.') > 0) {
+            var column_value = column.split('.');
+            var td_html = listIn(data[i][column_value[0]], column_value[0], column_value[1]);
+        } else if (column.indexOf(':') > 0) {
+            if (data[i][column] != undefined) {
+                var td_html = data[i][column];
+            } else {
+                var column_value = column.split(':');
+                var td_html = objectIn(data[i][column_value[0]], column_value);
+            }
+        } else if (column.indexOf('~') > 0) {
+            var all_values = column.split('~');
+            var td_html = "";
+            for (var v in all_values)
+            {
+                td_html += data[i][all_values[v]];
+            }
+        } else {
+            var td_html = data[i][column];
+        }
+
+        return td_html;
     }
 
     var setPaginator = function(table, page, total) {
@@ -305,6 +332,9 @@
         {
             obj = obj[index[i]];
         }
+
+        if (obj == null)
+            obj = '-';
 
         return obj;
     }

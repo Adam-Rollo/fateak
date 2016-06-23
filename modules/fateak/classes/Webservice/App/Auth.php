@@ -283,4 +283,40 @@ class Webservice_App_Auth extends Webservice_App
         }
     }
 
+    /**
+     * Check password if correct
+     * Very bad method, no security, not have any thing...
+     * Will add rsa later, maybe...
+     *
+     * @param account: 用户名
+     * @param password: 密码
+     *    
+     * @return Array: 是否登录成功
+     */
+    public function check($params)
+    {
+        $this->frequency(30, 3);
+
+        $this->check_params($params, 'account', 'password');
+
+        $user = ORM::factory('User');
+        $user->where($user->unique_key($params['account']), '=', $params['account'])->find();
+
+        if (is_string($params['password']))
+        {
+            $auth = Auth::instance();
+            $password = $auth->hash($params['password']);
+        }
+
+        if ($user->password === $password) {
+            $result['checked'] = 'Y';
+        }
+        else
+        {
+            $result['checked'] = 'N';
+            $result['message'] = __('Wrong account information.');
+        }
+        return $result;
+    }
+
 }

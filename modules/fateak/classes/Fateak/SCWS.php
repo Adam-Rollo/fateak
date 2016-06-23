@@ -65,6 +65,7 @@ class Fateak_SCWS
 
     public static function split_more($words)
     {
+        $words = Fsystem::remove_puncts($words);
         $keywords = explode(' ', $words);
 
         $so = self::instance(array('material'));
@@ -74,6 +75,9 @@ class Fateak_SCWS
         foreach ($keywords as $keyword)
         {
             preg_match_all('/[0-9a-zA-Z]+/', $keyword, $match);
+
+            foreach ($match[0] as $m_word)
+                $keyword = str_replace($m_word, '', $keyword);
 
             $so->send_text($keyword);
 
@@ -98,15 +102,20 @@ class Fateak_SCWS
 
     public static function compile($words)
     {
+        $words = Fsystem::remove_puncts($words);
         $keywords = explode(' ', $words);
 
         $so = self::instance(array('material'));
+        $so->set_multi(5);        
 
         $words_result = array();
 
         foreach ($keywords as $keyword)
         {
             preg_match_all('/[0-9a-zA-Z]+/', $keyword, $match);
+
+            foreach ($match[0] as $m_word)
+                $keyword = str_replace($m_word, '', $keyword);
 
             $so->send_text($keyword);
 

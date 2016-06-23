@@ -45,6 +45,9 @@ class Controller_Dictionary extends Controller_Fate
             {
                 if (substr($line, 0, 1) == '#') continue;
                 list($word, $tf, $idf, $attr) = explode("\t", $line, 4);
+
+                if (mb_strlen($word) < 2) continue;
+
                 $k = (ord($word[0]) + ord($word[1])) & 0x3f;
                 $attr = trim($attr);
 
@@ -92,28 +95,39 @@ class Controller_Dictionary extends Controller_Fate
 
     public function action_add()
     {
-        $word = $this->request->post('word');
+        $words = $this->request->post('word');
         $module = $this->request->post('module');
 
         $path = $this->find_dic($module);
         $txt = $path . 'dict.utf8.txt';
 
-        $word_info = $word . "\t10.0\t10.0\tn\t\n";
+        $words = preg_split('/\n/', $words);
+        foreach($words as $word) {
+            if (mb_strlen($word) >= 2)
+            {
+                $word_info = $word . "\t10.0\t10.0\tn\t\n";
 
-        if (! is_writable($txt))
-        {
-            $this->ajax->success(false);
-            $this->ajax->message('权限不够');
-            $this->response->body($this->ajax->build_result());
-            return;
+                if (! is_writable($txt))
+                {
+                    $this->ajax->success(false);
+                    $this->ajax->message('权限不够');
+                    $this->response->body($this->ajax->build_result());
+                   return;
+                }
+
+                $fd = fopen($txt, 'a');
+                fwrite($fd, $word_info);
+
+                fclose($fd);
+
+                $this->ajax->data($word . "已写入" . $module . "模块");
+            }
+            else
+            {
+                $this->ajax->data("单词必须在两个字以上");
+            }
         }
-            
-        $fd = fopen($txt, 'a');
-        fwrite($fd, $word_info);
 
-        fclose($fd);
-
-        $this->ajax->data($word . "已写入" . $module . "模块");
         $this->response->body($this->ajax->build_result());
     }
 

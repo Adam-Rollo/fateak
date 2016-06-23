@@ -17,7 +17,7 @@
     <?php foreach ($webservice_functions as $function): ?>
         <div>
             <h4><?php echo $function['name'] ?></h4>
-            <div class='label label-default' style='font-size:100%'><?php echo URL::base() . 'api/' . substr($function['class'], 11) . '/' . $function['function'] ?> </div>
+            <div class='label label-default' style='font-size:100%'><?php echo URL::base(true) . 'api/' . substr($function['class'], 11) . '/' . $function['function'] ?> </div>
             <pre style='background-color:white;border:none'><?php echo HTML::chars($function['comment']['comment']) ?></pre>
             <div class="apidocs panel panel-default">
                 <div class="panel-heading"><?php echo $function['classfunction'] ?></div>
@@ -46,8 +46,12 @@
     <?php endforeach; ?>
 
 <?php else: ?>
-<div class="help">
+<div class="alert alert-success">
     <p><?php echo __('You can search any webservice API here . Just change the select container !')?></p>
+    <p>RSA的密钥请在这里下载: <a href='<?php echo URL::base() ?>assets/data/public_key.txt' download='public_key.txt'>RSA公钥</a></p>
+    <p>RSA加密过后的密文，请用basecode64转码，以便更好的在网络间传输</p>
+    <p>请注意，某些系统basecode64转码时，并不会对空格（加号）做处理，请君注意处理并进行转码</p>
+    <p>新版密码明文统一为{'username':'用户名','password':'用户密码','timestamp':'当前时间戳'}</p>
 </div>
 
 <h3>使用指引</h3>

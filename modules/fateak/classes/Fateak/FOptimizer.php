@@ -27,7 +27,7 @@ class Fateak_FOptimizer
 
         $requests =  array_keys($groups['requests']);
         $uri = strtolower(str_replace('"', '', $requests[0]));
-                
+        $uri = preg_replace('/[0-9]+/', '[NUM]', $uri);
 
         if (strpos($uri, 'assets') === 0)
         {

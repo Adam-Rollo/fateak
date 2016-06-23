@@ -612,6 +612,7 @@ class Gleez_Menu {
         {
                 $roots = ORM::factory('Menu')
                         ->where('pid', '=', 0)
+                        ->order_by('rgt', 'DESC')
                         ->find_all();
 
                 $result = array();

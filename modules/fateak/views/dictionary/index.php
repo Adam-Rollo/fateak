@@ -1,4 +1,4 @@
-<style>
+<style xmlns="http://www.w3.org/1999/html">
 .group_tr {background-color: #FDC}
 </style>
 
@@ -16,7 +16,7 @@
 </div>
 <div style='margin-bottom:10px'>
     <a onclick='add_word("<?php echo $current ?>")' class='btn btn-warning'>在本词典添加新词</a>
-    <input id='new_word' type='text' />
+    <textarea id='new_word'></textarea>
 </div>
 <table class='table table-hover'>
    <tr>

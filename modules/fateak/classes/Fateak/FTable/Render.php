@@ -41,11 +41,23 @@ class Fateak_FTable_Render
 
     public static function ftime($src, $format = 'Y-m-d H:i:s')
     {
-        return date($format, $src);
+        if($src)
+            return date($format, $src);
+        else
+            return '';
     }
 
     public static function exsit($src)
     {
         return ($src=='' || $src=='[]') ? '' : '有';
+    }
+
+    public static function famount($val, $type)
+    {
+        if($type){
+            $val = -$val;
+        }
+        $val = $val/100;
+        return '<font class="text-'.($type?'success':'danger').'">'.$val.'</font>';
     }
 }

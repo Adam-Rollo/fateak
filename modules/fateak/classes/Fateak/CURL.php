@@ -52,6 +52,40 @@ class Fateak_CURL
         return $output;
     }
 
+    public static function xpost($url, $inputs)
+    {
+        $data = array();
+
+        foreach ($inputs as $k => $v)
+        {
+            $data[] = $k . "=" . urlencode($v);
+        }
+
+        $data = implode('&', $data);
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
+        curl_setopt($ch, CURLOPT_POST, 1);
+        @curl_setopt($ch, CURLOPT_POSTFIELDS,  $data);
+        //$curl_file = new CurlFile($data['file'], 'image/jpg');
+        //curl_setopt($ch, CURLOPT_POSTFIELDS,  $curl_file);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        
+        $output = curl_exec($ch);
+
+        if ($output === false) {
+            Log::info("[".curl_errno($ch)."]:".curl_error($ch));  
+            return array('errno' => curl_errno($ch), 'error' => curl_error($ch));
+        }
+
+        curl_close($ch);
+
+        return $output;
+    }
 
     private function cURLcheckBasicFunctions() 
     { 

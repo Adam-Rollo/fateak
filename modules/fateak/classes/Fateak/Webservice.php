@@ -125,4 +125,43 @@ abstract class Fateak_Webservice {
         }
     }
 
+    /**
+     * for local database user auth (not login)
+     */
+    public function rsa_local_auth($rsa_json, $role = null)
+    {
+        $data = JSON::decode($this->rsa_decode($rsa_json)); 
+
+        $auth = Auth::instance();
+
+        if ($user = $auth->auth_from_webservice($data['username'], $data['password']))
+        {
+            if (time() - $data['timestamp'] > 300)
+            {
+                throw new Webservice_Exception('Auth info is expired.');
+            }
+
+            if (! is_null($role))
+            {
+                if (! $user->has('roles', $role))
+                {
+                    throw new Webservice_Exception('Auth Role is not permitted.');
+                }
+            }
+
+            return $user;
+        }
+        else
+        {
+            throw new Webservice_Exception('Auth is not correct.');
+        }
+    }
+
+    /**
+     * For auth2.0 or other auth methods
+     */
+    public function rsa_remote_auth($rsa_json, $handler)
+    {
+    }
+
 }

@@ -32,7 +32,7 @@ class Controller_Assets extends Controller
         }
         else
         {
-            Log::error('Media controller error while loading file: :file', array(':file' => $file));
+            Log::debug('Media controller error while loading file: :file', array(':file' => $file));
 
             // Return a 404 status
             $this->response->status(404);

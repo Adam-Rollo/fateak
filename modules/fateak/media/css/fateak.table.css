@@ -1,13 +1,14 @@
 .rows-per-page {width: 50px}
 
-.search-content-span {}
+.search-content-span {float: left}
+.search-content {height: 26px}
 
 .search_area {float: right}
 .search_row {height: 30px}
 
-.search-btn {}
+.search-btn {float: left}
 
-.search-type {height: 26px}
+.search-type {height: 26px; float:left}
 
 .add_more_key {float: right}
 

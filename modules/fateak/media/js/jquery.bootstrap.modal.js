@@ -87,7 +87,7 @@
                         if (data.success == 'Y') {
                             div.find(".modal-alert").html("");
                             div.find(".fm-close").click();
-                            options.success();
+                            options.success(data.data);
                         } else {
                             var messages = '<div style="margin-bottom:5px" class="alert alert-warning alert-dismissible" role="alert">'
                                 + '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'

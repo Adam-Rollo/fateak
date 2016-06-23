@@ -81,7 +81,7 @@ class Fateak_FTable
      */
     public function data($btns = array(), $properties = array(), $scripts = array())
     {
-        if (empty($btns) && empty($properties) && empty($script))
+        if (empty($btns) && empty($properties) && empty($scripts))
         {
             return $this->_data->as_array();
         }
@@ -214,16 +214,18 @@ class Fateak_FTable
 
                             $script_args[$arg_name] = str_replace($matches[0], $value, $script_arg);
 
-                            $value = call_user_func_array(array($script_class, $script_function), $script_args);
+                            //$value = call_user_func_array(array($script_class, $script_function), $script_args);
                         }
                         else
                         {
                             $script_args[$arg_name] = str_replace($matches[0], $row[$matches[1]], $script_arg);
-                            $row[$scolumn] = call_user_func_array(array($script_class, $script_function), $script_args);
                         }
 
                     }
+
                 }
+
+                $row[$scolumn] = call_user_func_array(array($script_class, $script_function), $script_args);
 
             }
 
